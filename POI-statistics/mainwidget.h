@@ -3,6 +3,8 @@
 
 #include <QWidget>
 #include <QtCharts>
+#include <QPushButton>
+#include <vector>
 
 class MainWidget : public QWidget
 {
@@ -11,10 +13,18 @@ class MainWidget : public QWidget
 public:
     MainWidget();
 
+public slots:
+    void setData();
+
 
 private:
     QChart* chart;
     QChartView *ChartView;
     QSplineSeries *series;
+    QVBoxLayout *container;
+
+    QPushButton *btn;
+
+    std::vector<std::pair<int,int>> data;
 };
 #endif // MAINWIDGET_H
