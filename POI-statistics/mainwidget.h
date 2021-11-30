@@ -4,6 +4,8 @@
 #include <QWidget>
 #include <QtCharts>
 #include <QPushButton>
+#include <QLabel>
+#include <QComboBox>
 #include <vector>
 
 class MainWidget : public QWidget
@@ -15,16 +17,24 @@ public:
 
 public slots:
     void setData();
-
+    void setStartingWeek();
+    void setEndingWeek();
 
 private:
     QChart* chart;
-    QChartView *ChartView;
+    QChartView *chartView;
     QSplineSeries *series;
-    QVBoxLayout *container;
+    QGridLayout *container;
+    QLabel *starting;
+    QLabel *ending;
+    QLabel *select;
+    QComboBox *startBox;
+    QComboBox *endBox;
 
     QPushButton *btn;
 
     std::vector<std::pair<int,int>> data;
+
+    void setRange(int start,int end);
 };
 #endif // MAINWIDGET_H
