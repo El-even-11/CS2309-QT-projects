@@ -6,33 +6,37 @@
 
 MainWidget::MainWidget()
 {
-    setMinimumSize(500,500);
+    setMinimumSize(1000,500);
     chart = new QChart();
+    chart->legend()->setVisible(false);
 
     chartView = new QChartView(this);
     chartView->setChart(chart);
 
     btn = new QPushButton("select");
-    starting = new QLabel("starting week");
-    ending = new QLabel("ending week");
-    select = new QLabel("select a .csv file");
+    starting = new QLabel("start week:");
+    ending = new QLabel("end week:");
+    select = new QLabel("select a .csv file:");
+    warning = new QLabel("");
     startBox = new QComboBox();
     endBox = new QComboBox();
 
     container = new QGridLayout();
+
     container->addWidget(chartView,0,0,3,5);
     container->addWidget(starting,3,0);
     container->addWidget(startBox,3,1);
     container->addWidget(ending,4,0);
     container->addWidget(endBox,4,1);
     container->addWidget(select,3,3);
+    container->addWidget(warning,4,2);
     container->addWidget(btn,3,4);
 
     this->setLayout(container);
 
     connect(btn,&QPushButton::clicked,this,&MainWidget::setData);
-    connect(startBox,&QComboBox::currentIndexChanged,this,&MainWidget::setStartingWeek);
-    connect(endBox,&QComboBox::currentIndexChanged,this,&MainWidget::setEndingWeek);
+    connect(startBox,&QComboBox::currentIndexChanged,this,&MainWidget::setRange);
+    connect(endBox,&QComboBox::currentIndexChanged,this,&MainWidget::setRange);
 }
 
 void MainWidget::setData(){
@@ -54,14 +58,17 @@ void MainWidget::setData(){
     }
 
     series = new QSplineSeries(this);
-    for (int i=0;i<data.size();i++){
-        series->append(data[i].first,data[i].second);
-    }
     file.close();
     chart->removeAllSeries();
     chart->addSeries(series);
-    chart->createDefaultAxes();
+    chart->removeAxis(axisX);
+    chart->removeAxis(axisY);
 
+    axisX = new QValueAxis();
+    axisY = new QValueAxis();
+
+    chart->addAxis(axisX,Qt::AlignBottom);
+    chart->addAxis(axisY,Qt::AlignLeft);
 
     startBox->clear();
     endBox->clear();
@@ -74,33 +81,37 @@ void MainWidget::setData(){
     endBox->setCurrentIndex(data.size()-1);
 }
 
-void MainWidget::setStartingWeek(){
+
+void MainWidget::setRange(){
     int start = startBox->currentIndex();
     int end = endBox->currentIndex();
+
+    warning->setText("");
+    chart->removeAllSeries();
 
     if (start>end){
-        start=end;
+        warning->setText("start week should be earlier");
+        return;
     }
-    setRange(start,end);
-}
 
-void MainWidget::setEndingWeek(){
-    int start = startBox->currentIndex();
-    int end = endBox->currentIndex();
-
-    if (end<start){
-        end=start;
-    }
-    setRange(start,end);
-}
-
-void MainWidget::setRange(int start, int end){
     series = new QSplineSeries(this);
+
+    int max = -1;
     for (int i=start;i<=end;i++){
         series->append(data[i].first,data[i].second);
+        max = data[i].second>max?data[i].second:max;
     }
 
-    chart->removeAllSeries();
     chart->addSeries(series);
-    chart->createDefaultAxes();
+
+    axisX->setTickCount((end-start+1)>10?10:(end-start+1));
+    axisX->setRange(start+1,end+1);
+    axisX->setLabelFormat("%d");
+
+    axisY->setTickCount(8);
+    axisY->setRange(0,int(max*4/3));
+    axisY->setLabelFormat("%d");
+
+    series->attachAxis(axisX);
+    series->attachAxis(axisY);
 }

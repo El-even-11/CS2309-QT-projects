@@ -17,8 +17,7 @@ public:
 
 public slots:
     void setData();
-    void setStartingWeek();
-    void setEndingWeek();
+    void setRange();
 
 private:
     QChart* chart;
@@ -28,13 +27,16 @@ private:
     QLabel *starting;
     QLabel *ending;
     QLabel *select;
+    QLabel *warning;
     QComboBox *startBox;
     QComboBox *endBox;
+    QValueAxis *axisX;
+    QValueAxis *axisY;
 
     QPushButton *btn;
 
     std::vector<std::pair<int,int>> data;
 
-    void setRange(int start,int end);
+
 };
 #endif // MAINWIDGET_H
