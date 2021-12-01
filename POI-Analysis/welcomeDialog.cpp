@@ -20,10 +20,9 @@ WelcomeDialog::WelcomeDialog(){
 
 void WelcomeDialog::setFile(){
     filename=QFileDialog::getOpenFileName(0,"Select csv file","/","(*.csv)");
-
-    qDebug() << filename;
-
-    this->accept();
+    if (!filename.isEmpty()){
+        this->accept();
+    }
 }
 
 QString WelcomeDialog::getFilename(){

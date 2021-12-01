@@ -6,10 +6,16 @@ MainWidget::MainWidget()
 {
 
     WelcomeDialog *dialog = new WelcomeDialog();
-    dialog->exec();
-    filename = dialog->getFilename();
-
-    qDebug() << filename;
+    int res = dialog->exec();
+    if (res == QDialog::Accepted){
+        filename = dialog->getFilename();
+        delete dialog;
+        file = new QFile(filename);
+        file->open(QIODevice::ReadOnly|QIODevice::Text);
+        qDebug() << filename;
+    }else if (res == QDialog::Rejected){
+        qDebug() << "Rejected";
+    }
 }
 
 

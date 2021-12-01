@@ -14,7 +14,7 @@ public:
 
 private:
     QString filename;
-    QFile file;
+    QFile *file;
 
 };
 #endif // MAINWIDGET_H
