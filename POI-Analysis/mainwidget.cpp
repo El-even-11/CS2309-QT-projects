@@ -4,7 +4,6 @@
 #include <QDebug>
 MainWidget::MainWidget()
 {
-
     WelcomeDialog *dialog = new WelcomeDialog();
     int res = dialog->exec();
     if (res == QDialog::Accepted){
@@ -14,7 +13,7 @@ MainWidget::MainWidget()
         file->open(QIODevice::ReadOnly|QIODevice::Text);
         qDebug() << filename;
     }else if (res == QDialog::Rejected){
-        qDebug() << "Rejected";
+        exit(0);
     }
 }
 
