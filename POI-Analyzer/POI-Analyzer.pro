@@ -11,11 +11,13 @@ CONFIG += c++11
 SOURCES += \
     main.cpp \
     mainwidget.cpp \
+    poi.cpp \
     progressdialog.cpp \
     welcomedialog.cpp
 
 HEADERS += \
     mainwidget.h \
+    poi.h \
     progressdialog.h \
     welcomedialog.h
 
