@@ -12,18 +12,15 @@ SOURCES += \
     main.cpp \
     mainwidget.cpp \
     poi.cpp \
-    progressdialog.cpp \
     welcomedialog.cpp
 
 HEADERS += \
     mainwidget.h \
     poi.h \
-    progressdialog.h \
     welcomedialog.h
 
 FORMS += \
     mainwidget.ui \
-    progressdialog.ui \
     welcomedialog.ui
 
 # Default rules for deployment.
