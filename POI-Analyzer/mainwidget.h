@@ -2,6 +2,7 @@
 #define MAINWIDGET_H
 
 #include <QWidget>
+#include <QFile>
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWidget; }
@@ -17,5 +18,8 @@ public:
 
 private:
     Ui::MainWidget *ui;
+
+    QString filename;
+    QFile *file;
 };
 #endif // MAINWIDGET_H
