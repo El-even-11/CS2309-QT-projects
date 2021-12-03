@@ -12,22 +12,22 @@ MainWidget::MainWidget(QWidget *parent)
     , ui(new Ui::MainWidget)
 {
     ui->setupUi(this);
-//    WelcomeDialog *wdialog = new WelcomeDialog();
+    WelcomeDialog *wdialog = new WelcomeDialog();
 
-//    bool finished=false;
+    bool finished=false;
 
-//    while (!finished){
-//        int res = wdialog->exec();
-//        if (res == QDialog::Accepted){
-//            filename = wdialog->getFilename();
-//            file = new QFile(filename);
-//            file->open(QIODevice::ReadOnly|QIODevice::Text);
-//            qDebug() << filename;
-//        }else if (res == QDialog::Rejected){
-//            exit(0);
-//        }
-//        finished = loadData();
-//    }
+    while (!finished){
+        int res = wdialog->exec();
+        if (res == QDialog::Accepted){
+            filename = wdialog->getFilename();
+            file = new QFile(filename);
+            file->open(QIODevice::ReadOnly|QIODevice::Text);
+            qDebug() << filename;
+        }else if (res == QDialog::Rejected){
+            exit(0);
+        }
+        finished = loadData();
+    }
     setTabs();
 }
 
@@ -88,7 +88,7 @@ bool MainWidget::loadData(){
 
 void MainWidget::setTabs(){
 
-    userPage = new UserPage();
+    userPage = new UserPage(&data);
 
     ui->tabWidget->addTab(userPage,"USER");
 

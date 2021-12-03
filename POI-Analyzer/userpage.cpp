@@ -2,9 +2,13 @@
 #include <QDebug>
 #include <QLabel>
 #include <QChartView>
+#include <QTime>
 
-UserPage::UserPage(QWidget *parent) : QWidget(parent)
+UserPage::UserPage(QVector<POI*>* data,QWidget *parent) : QWidget(parent)
 {
+    this->data=data;
+    loadData();
+
     gridLayout = new QGridLayout();
     QLabel *label = new QLabel("user id:");
     gridLayout->addWidget(label,0,0,1,1);
@@ -56,7 +60,18 @@ void UserPage::setPOICharts(bool checked){
 }
 
 QChart * UserPage::createTimeChart(){
+
     QChart *chart = new QChart();
 
+
+
     return chart;
+}
+
+void UserPage::loadData(){
+
+    for (int i=0;i<data->size();i++){
+        int userID = (*data)[i]->userID;
+        userData[userID].push_back((*data)[i]);
+    }
 }
