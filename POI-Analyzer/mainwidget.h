@@ -4,8 +4,10 @@
 #include <QWidget>
 #include <QFile>
 #include <QVector>
+#include <QList>
 
 #include "poi.h"
+#include "userpage.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWidget; }
@@ -21,6 +23,7 @@ public:
 
 private:
     bool loadData();
+    void setTabs();
 
 private:
     Ui::MainWidget *ui;
@@ -29,5 +32,7 @@ private:
     QFile *file;
 
     QVector<POI*> data;
+
+    UserPage *userPage;
 };
 #endif // MAINWIDGET_H

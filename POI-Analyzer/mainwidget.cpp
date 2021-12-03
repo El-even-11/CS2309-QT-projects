@@ -4,28 +4,31 @@
 #include "welcomedialog.h"
 
 #include <QProgressDialog>
+#include <QGroupBox>
+#include <QRadioButton>
 
 MainWidget::MainWidget(QWidget *parent)
     : QWidget(parent)
     , ui(new Ui::MainWidget)
 {
     ui->setupUi(this);
-    WelcomeDialog *wdialog = new WelcomeDialog();
+//    WelcomeDialog *wdialog = new WelcomeDialog();
 
-    bool finished=false;
+//    bool finished=false;
 
-    while (!finished){
-        int res = wdialog->exec();
-        if (res == QDialog::Accepted){
-            filename = wdialog->getFilename();
-            file = new QFile(filename);
-            file->open(QIODevice::ReadOnly|QIODevice::Text);
-            qDebug() << filename;
-        }else if (res == QDialog::Rejected){
-            exit(0);
-        }
-        finished = loadData();
-    }
+//    while (!finished){
+//        int res = wdialog->exec();
+//        if (res == QDialog::Accepted){
+//            filename = wdialog->getFilename();
+//            file = new QFile(filename);
+//            file->open(QIODevice::ReadOnly|QIODevice::Text);
+//            qDebug() << filename;
+//        }else if (res == QDialog::Rejected){
+//            exit(0);
+//        }
+//        finished = loadData();
+//    }
+    setTabs();
 }
 
 MainWidget::~MainWidget()
@@ -44,6 +47,7 @@ bool MainWidget::loadData(){
     qint64 size=file->size();
     qDebug() << size;
 
+    dialog->setFixedSize(450,250);
     dialog->setRange(0,size);
     dialog->setWindowModality(Qt::WindowModal);
     dialog->show();
@@ -82,3 +86,11 @@ bool MainWidget::loadData(){
     return finished;
 }
 
+void MainWidget::setTabs(){
+
+    userPage = new UserPage();
+
+    ui->tabWidget->addTab(userPage,"USER");
+
+
+}

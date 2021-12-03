@@ -1,4 +1,5 @@
 QT       += core gui
+QT       += charts
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
@@ -12,11 +13,13 @@ SOURCES += \
     main.cpp \
     mainwidget.cpp \
     poi.cpp \
+    userpage.cpp \
     welcomedialog.cpp
 
 HEADERS += \
     mainwidget.h \
     poi.h \
+    userpage.h \
     welcomedialog.h
 
 FORMS += \
