@@ -6,8 +6,7 @@
 #include <QRadioButton>
 #include <QGridLayout>
 #include <QLineEdit>
-#include <QChart>
-#include <QChartView>
+#include <QtCharts>
 #include <QVector>
 #include <QMap>
 

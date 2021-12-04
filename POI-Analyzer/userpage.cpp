@@ -1,7 +1,6 @@
 #include "userpage.h"
 #include <QDebug>
 #include <QLabel>
-#include <QChartView>
 #include <QTime>
 
 UserPage::UserPage(QVector<POI*>* data,QWidget *parent) : QWidget(parent)
@@ -52,6 +51,7 @@ void UserPage::setTimeChartViews(bool checked){
 
     chartviews.clear();
     timeChartView = new QChartView();
+    timeChartView->setRenderHint(QPainter::Antialiasing,true);
     chartviews << timeChartView;
     gridLayout->addWidget(timeChartView,0,2,3,6);
 
@@ -67,6 +67,7 @@ void UserPage::setPOIChartViews(bool checked){
 }
 
 void UserPage::createTimeChart(){
+
     QString text = input->text();
     QStringList idsString = text.split(",");
     QVector<int> ids;
@@ -82,13 +83,48 @@ void UserPage::createTimeChart(){
         ids.push_back(id);
     }
 
-    // up to 3 users
-    for (int i=0;i<3&&i<ids.size();i++){
-        QVector<POI*> userPOI = userData[ids[i]];
-        for (POI* poi : userPOI){
+    timeChart = new QChart();
+    timeChart->setLocale(QLocale::English);
+    timeChart->setAnimationOptions(QChart::SeriesAnimations);
+    timeChart->setAnimationDuration(100);
 
+    QDateTimeAxis *axisX = new QDateTimeAxis();
+    axisX->setTickCount(POI::monthRange.size());
+    axisX->setFormat("MMM yyyy");
+    timeChart->addAxis(axisX,Qt::AlignBottom);
+    QValueAxis *axisY = new QValueAxis();
+    axisY->setTickCount(8);
+    axisY->setLabelFormat("%d");
+    timeChart->addAxis(axisY,Qt::AlignLeft);
+
+    int maxCnt = 0;
+    // up to 3 users
+    for (int i=0;i<5&&i<ids.size();i++){
+        QVector<POI*> userPOI = userData[ids[i]];
+        QSplineSeries *series = new QSplineSeries();
+
+        QHash<QDate,int> cnt;
+        for (QDate date : POI::monthRange){
+            cnt[date]=0;
         }
+        for (POI* poi : userPOI){
+            QDate date = POI::getDate(poi->time);
+            cnt[QDate(date.year(),date.month(),15)]++;
+        }
+        for (QDate date : POI::monthRange){
+            QDateTime momentInTime;
+            momentInTime.setDate(date);
+            maxCnt = maxCnt>cnt[date]?maxCnt:cnt[date];
+            series->append(momentInTime.toMSecsSinceEpoch(),cnt[date]);
+        }
+        series->setName("user"+QString::number(ids[i]));
+        timeChart->addSeries(series);
+        series->attachAxis(axisX);
+        series->attachAxis(axisY);
     }
+    axisY->setRange(0,maxCnt*5/4);
+
+    timeChartView->setChart(timeChart);
 }
 
 void UserPage::createChart(){
