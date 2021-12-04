@@ -7,6 +7,7 @@
 #include <QGridLayout>
 #include <QLineEdit>
 #include <QChart>
+#include <QChartView>
 #include <QVector>
 #include <QMap>
 
@@ -19,25 +20,30 @@ public:
     explicit UserPage(QVector<POI*>* data,QWidget *parent = nullptr);
 
 public slots:
-    void setTimeCharts(bool checked);
-    void setPOICharts(bool checked);
+    void setTimeChartViews(bool checked);
+    void setPOIChartViews(bool checked);
+    void createChart();
 
 private:
-    QChart *createTimeChart();
     void loadData();
+    void createTimeChart();
 
 private:
     QGridLayout *gridLayout;
 
     QLineEdit* input;
-
     QGroupBox* groupBox;
-
     QRadioButton* radio1;
     QRadioButton* radio2;
 
+    QChartView *timeChartView;
+    QChart *timeChart;
+
+    QList<QChartView*> chartviews;
+
     QVector<POI*>* data;
 
+    int userCnt;
     QMap<int,QVector<POI*>> userData;
 };
 
