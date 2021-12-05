@@ -26,24 +26,27 @@ public slots:
 private:
     void loadData();
     void createTimeChart();
-    void crearePOIChart();
+    void createPOIChart();
 
 private:
-    QGridLayout *gridLayout;
+    QGridLayout *gridLayout = nullptr;
 
-    QLineEdit* input;
-    QGroupBox* groupBox;
-    QRadioButton* radio1;
-    QRadioButton* radio2;
+    QLineEdit* input = nullptr;
+    QGroupBox* groupBox = nullptr;
+    QRadioButton* radio1 = nullptr;
+    QRadioButton* radio2 = nullptr;
 
-    QWidget *chartContainer;
-    QGridLayout* containerLayout;
-    QChartView *timeChartView;
-    QChart *timeChart;
+    QWidget *chartContainer = nullptr;
+    QGridLayout* containerLayout = nullptr;
+    QChartView *timeChartView = nullptr;
+    QChart *timeChart = nullptr;
+    QChartView *poiChartView = nullptr;
+    QChart *poiChart = nullptr;
 
     QList<QChartView*> chartviews;
+    QList<QChart*> charts;
 
-    QVector<POI*>* data;
+    QVector<POI*>* data = nullptr;
 
     int userCnt;
     QMap<int,QVector<POI*>> userData;
