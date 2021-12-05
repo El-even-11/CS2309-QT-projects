@@ -19,34 +19,47 @@ public:
     explicit UserPage(QVector<POI*>* data,QWidget *parent = nullptr);
 
 public slots:
-    void setTimeChartViews(bool checked);
-    void setPOIChartViews(bool checked);
+    void setTimeChartView(bool checked);
+    void setPOIChartView(bool checked);
+    void setCmpChartView(bool checked);
     void setChartViews();
 
 private:
     void loadData();
     void createTimeChart();
     void createPOIChart();
+    void createCmpChart();
 
 private:
-    QGridLayout *gridLayout = nullptr;
+    QGridLayout *gridLayout;
 
-    QLineEdit* input = nullptr;
-    QGroupBox* groupBox = nullptr;
-    QRadioButton* radio1 = nullptr;
-    QRadioButton* radio2 = nullptr;
+    QLineEdit* lineEdit;
+    QGroupBox* optionBox;
+    QRadioButton* radio1;
+    QRadioButton* radio2;
+    QRadioButton* radio3;
+    QGroupBox* timeFilter;
+    QDateEdit* dateFrom;
+    QDateEdit* dateTo;
+    QGroupBox* gpsFilter;
+    QGroupBox* longitudeFilter;
+    QDoubleSpinBox* longitudeFrom;
+    QDoubleSpinBox* longitudeTo;
+    QGroupBox* latitudeFilter;
+    QDoubleSpinBox* latitudeFrom;
+    QDoubleSpinBox* latitudeTo;
 
-    QWidget *chartContainer = nullptr;
-    QGridLayout* containerLayout = nullptr;
-    QChartView *timeChartView = nullptr;
-    QChart *timeChart = nullptr;
-    QChartView *poiChartView = nullptr;
-    QChart *poiChart = nullptr;
+    QWidget *chartContainer;
+    QGridLayout* containerLayout;
+    QChartView *timeChartView;
+    QChart *timeChart;
+    QChartView *poiChartView;
+    QChart *poiChart;
 
     QList<QChartView*> chartviews;
     QList<QChart*> charts;
 
-    QVector<POI*>* data = nullptr;
+    QVector<POI*>* data;
 
     int userCnt;
     QMap<int,QVector<POI*>> userData;
