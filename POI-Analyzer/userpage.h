@@ -21,11 +21,12 @@ public:
 public slots:
     void setTimeChartViews(bool checked);
     void setPOIChartViews(bool checked);
-    void createChart();
+    void setChartViews();
 
 private:
     void loadData();
     void createTimeChart();
+    void crearePOIChart();
 
 private:
     QGridLayout *gridLayout;
@@ -35,6 +36,8 @@ private:
     QRadioButton* radio1;
     QRadioButton* radio2;
 
+    QWidget *chartContainer;
+    QGridLayout* containerLayout;
     QChartView *timeChartView;
     QChart *timeChart;
 
