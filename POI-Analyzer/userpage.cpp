@@ -88,12 +88,21 @@ UserPage::UserPage(QVector<POI*>* data,QWidget *parent) : QWidget(parent)
     vbox2->addWidget(latitudeFilter);
     gpsFilter->setLayout(vbox2);
 
-    gridLayout->addWidget(timeFilter,4,0,2,2);
-    gridLayout->addWidget(gpsFilter,6,0,4,2);
-    gridLayout->setRowStretch(10,1);
+    filterReset = new QPushButton("Reset");
+    filterApply = new QPushButton("Apply");
+    filters = new QGroupBox("filters");
+    QGridLayout* grid4 = new QGridLayout();
+    grid4->addWidget(timeFilter,0,0,2,2);
+    grid4->addWidget(gpsFilter,2,0,4,2);
+    grid4->addWidget(filterReset,6,0,1,1);
+    grid4->addWidget(filterApply,6,1,1,1);
+    filters->setLayout(grid4);
+
+    gridLayout->addWidget(filters,4,0,7,2);
+    gridLayout->setRowStretch(11,1);
 
     chartContainer = new QWidget();
-    gridLayout->addWidget(chartContainer,0,2,11,6);
+    gridLayout->addWidget(chartContainer,0,2,12,6);
     containerLayout = new QGridLayout();
     chartContainer->setLayout(containerLayout);
 
@@ -108,6 +117,8 @@ UserPage::UserPage(QVector<POI*>* data,QWidget *parent) : QWidget(parent)
     connect(radio1,&QRadioButton::toggled,this,&UserPage::setTimeChartView);
     connect(radio2,&QRadioButton::toggled,this,&UserPage::setPOIChartView);
     connect(radio3,&QRadioButton::toggled,this,&UserPage::setCmpChartView);
+    connect(filterApply,&QPushButton::clicked,this,&UserPage::updateFilters);
+    connect(filterReset,&QPushButton::clicked,this,&UserPage::resetFilters);
     radio1->setChecked(true);
     connect(lineEdit,&QLineEdit::editingFinished,this,&UserPage::setChartViews);
 }
@@ -152,6 +163,19 @@ void UserPage::setPOIChartView(bool checked){
 
 void UserPage::setCmpChartView(bool checked){
 
+}
+
+void UserPage::updateFilters(){
+    qDebug() << "update filters";
+}
+
+void UserPage::resetFilters(){
+    dateFrom->setDate(QDate(2009,2,1));
+    dateTo->setDate(QDate(2010,10,31));
+    longitudeFrom->setValue(-180.0);
+    longitudeTo->setValue(180.0);
+    latitudeFrom->setValue(-90.0);
+    latitudeTo->setValue(90.0);
 }
 
 void UserPage::createTimeChart(){

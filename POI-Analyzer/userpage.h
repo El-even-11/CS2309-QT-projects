@@ -23,6 +23,8 @@ public slots:
     void setPOIChartView(bool checked);
     void setCmpChartView(bool checked);
     void setChartViews();
+    void resetFilters();
+    void updateFilters();
 
 private:
     void loadData();
@@ -38,6 +40,7 @@ private:
     QRadioButton* radio1;
     QRadioButton* radio2;
     QRadioButton* radio3;
+    QGroupBox* filters;
     QGroupBox* timeFilter;
     QDateEdit* dateFrom;
     QDateEdit* dateTo;
@@ -48,6 +51,8 @@ private:
     QGroupBox* latitudeFilter;
     QDoubleSpinBox* latitudeFrom;
     QDoubleSpinBox* latitudeTo;
+    QPushButton* filterApply;
+    QPushButton* filterReset;
 
     QWidget *chartContainer;
     QGridLayout* containerLayout;
