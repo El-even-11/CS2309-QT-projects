@@ -4,20 +4,28 @@
 #include <QString>
 #include <QDate>
 #include <QVector>
+#include <QList>
 
 class POI
 {
 public:
-    POI(int userID,int locID,QString time,double latitude,double longitude);
+    POI(int userID,int locID,QString datetime,double latitude,double longitude);
 
-    static QDate getDate(QString time);
+    static QList<POI*> filter(const QList<POI*>& tuples,QDate minDate,QDate maxDate,QTime minTime,QTime maxTime,double minLng,double maxLng,double minLat,double maxLat);
 
     int userID;
     int locID;
-    QString time;
+    QDate date;
+    QTime time;
     double latitude;
     double longitude;
 
     static QVector<QDate> monthRange;
+
+private:
+    static QList<POI*> dateFilter(const QList<POI*>& tuples,QDate minDate,QDate maxDate);
+    static QList<POI*> timeFilter(const QList<POI*>& tuples,QTime minTime,QTime maxTime);
+    static QList<POI*> lngFilter(const QList<POI*>& tuples,double minLng,double maxLng);
+    static QList<POI*> latFilter(const QList<POI*>& tuples,double minLat,double maxLat);
 };
 #endif // POI_H

@@ -16,7 +16,7 @@ class UserPage : public QWidget
 {
     Q_OBJECT
 public:
-    explicit UserPage(QVector<POI*>* data,QWidget *parent = nullptr);
+    explicit UserPage(QList<POI*>* data,QWidget *parent = nullptr);
 
 public slots:
     void setTimeChartView(bool checked);
@@ -41,10 +41,12 @@ private:
     QRadioButton* radio2;
     QRadioButton* radio3;
     QGroupBox* filters;
-    QGroupBox* timeFilter;
+    QGroupBox* dateFilter;
     QDateEdit* dateFrom;
     QDateEdit* dateTo;
-    QGroupBox* gpsFilter;
+    QGroupBox* timeFilter;
+    QTimeEdit* timeFrom;
+    QTimeEdit* timeTo;
     QGroupBox* longitudeFilter;
     QDoubleSpinBox* longitudeFrom;
     QDoubleSpinBox* longitudeTo;
@@ -64,10 +66,10 @@ private:
     QList<QChartView*> chartviews;
     QList<QChart*> charts;
 
-    QVector<POI*>* data;
+    QList<POI*>* data;
 
     int userCnt;
-    QMap<int,QVector<POI*>> userData;
+    QVector<QList<POI*>> userData;
 };
 
 #endif // USERPAGE_H

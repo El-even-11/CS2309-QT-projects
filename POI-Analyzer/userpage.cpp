@@ -6,7 +6,7 @@
 #include <algorithm>
 #include <queue>
 
-UserPage::UserPage(QVector<POI*>* data,QWidget *parent) : QWidget(parent)
+UserPage::UserPage(QList<POI*>* data,QWidget *parent) : QWidget(parent)
 {
     this->data=data;
     loadData();
@@ -18,9 +18,9 @@ UserPage::UserPage(QVector<POI*>* data,QWidget *parent) : QWidget(parent)
     gridLayout->addWidget(lineEdit,0,1,1,1);
 
     optionBox = new QGroupBox("Options");
-    radio1 = new QRadioButton("time trend");
-    radio2 = new QRadioButton("top 10 popular POIs");
-    radio3 = new QRadioButton("comparison");
+    radio1 = new QRadioButton("Time trend");
+    radio2 = new QRadioButton("Top 10 popular POIs");
+    radio3 = new QRadioButton("Comparison");
     QVBoxLayout* vbox1 = new QVBoxLayout();
     vbox1->addWidget(radio1);
     vbox1->addWidget(radio2);
@@ -28,7 +28,7 @@ UserPage::UserPage(QVector<POI*>* data,QWidget *parent) : QWidget(parent)
     optionBox->setLayout(vbox1);
     gridLayout->addWidget(optionBox,1,0,3,2);
 
-    timeFilter = new QGroupBox("time filter");
+    dateFilter = new QGroupBox("Date");
     QGridLayout* grid1 = new QGridLayout();
     dateFrom = new QDateEdit();
     dateTo = new QDateEdit();
@@ -36,14 +36,28 @@ UserPage::UserPage(QVector<POI*>* data,QWidget *parent) : QWidget(parent)
     dateTo->setDateRange(QDate(2009,2,1),QDate(2010,10,31));
     dateFrom->setDate(QDate(2009,2,1));
     dateTo->setDate(QDate(2010,10,31));
-    grid1->addWidget(new QLabel("From"),0,0,1,1);
-    grid1->addWidget(new QLabel("To"),1,0,1,1);
+    grid1->addWidget(new QLabel("from"),0,0,1,1);
+    grid1->addWidget(new QLabel("to"),1,0,1,1);
     grid1->addWidget(dateFrom,0,1,1,1);
     grid1->addWidget(dateTo,1,1,1,1);
-    timeFilter->setLayout(grid1);
+    dateFilter->setLayout(grid1);
 
-    longitudeFilter = new QGroupBox("longitude");
+    timeFilter = new QGroupBox("Time");
     QGridLayout* grid2 = new QGridLayout();
+    timeFrom = new QTimeEdit();
+    timeTo = new QTimeEdit();
+    timeFrom->setTimeRange(QTime(0,0,0),QTime(23,59,59));
+    timeTo->setTimeRange(QTime(0,0,0),QTime(23,59,59));
+    timeFrom->setTime(QTime(0,0,0));
+    timeTo->setTime(QTime(23,59,59));
+    grid2->addWidget(new QLabel("from"),0,0,1,1);
+    grid2->addWidget(new QLabel("to"),1,0,1,1);
+    grid2->addWidget(timeFrom,0,1,1,1);
+    grid2->addWidget(timeTo,1,1,1,1);
+    timeFilter->setLayout(grid2);
+
+    longitudeFilter = new QGroupBox("Longitude");
+    QGridLayout* grid3 = new QGridLayout();
     longitudeFrom = new QDoubleSpinBox();
     longitudeTo = new QDoubleSpinBox();
     longitudeFrom->setRange(-180.0,180.0);
@@ -56,14 +70,14 @@ UserPage::UserPage(QVector<POI*>* data,QWidget *parent) : QWidget(parent)
     longitudeTo->setDecimals(1);
     longitudeFrom->setSuffix("°");
     longitudeTo->setSuffix("°");
-    grid2->addWidget(new QLabel("From"),0,0,1,1);
-    grid2->addWidget(new QLabel("To"),1,0,1,1);
-    grid2->addWidget(longitudeFrom,0,1,1,1);
-    grid2->addWidget(longitudeTo,1,1,1,1);
-    longitudeFilter->setLayout(grid2);
+    grid3->addWidget(new QLabel("from"),0,0,1,1);
+    grid3->addWidget(new QLabel("to"),1,0,1,1);
+    grid3->addWidget(longitudeFrom,0,1,1,1);
+    grid3->addWidget(longitudeTo,1,1,1,1);
+    longitudeFilter->setLayout(grid3);
 
-    latitudeFilter = new QGroupBox("latitude");
-    QGridLayout* grid3 = new QGridLayout();
+    latitudeFilter = new QGroupBox("Latitude");
+    QGridLayout* grid4 = new QGridLayout();
     latitudeFrom = new QDoubleSpinBox();
     latitudeTo = new QDoubleSpinBox();
     latitudeFrom->setRange(-90.0,90.0);
@@ -76,33 +90,29 @@ UserPage::UserPage(QVector<POI*>* data,QWidget *parent) : QWidget(parent)
     latitudeTo->setDecimals(1);
     latitudeFrom->setSuffix("°");
     latitudeTo->setSuffix("°");
-    grid3->addWidget(new QLabel("From"),0,0,1,1);
-    grid3->addWidget(new QLabel("To"),1,0,1,1);
-    grid3->addWidget(latitudeFrom,0,1,1,1);
-    grid3->addWidget(latitudeTo,1,1,1,1);
-    latitudeFilter->setLayout(grid3);
-
-    gpsFilter = new QGroupBox("location filter");
-    QVBoxLayout* vbox2 = new QVBoxLayout();
-    vbox2->addWidget(longitudeFilter);
-    vbox2->addWidget(latitudeFilter);
-    gpsFilter->setLayout(vbox2);
+    grid4->addWidget(new QLabel("from"),0,0,1,1);
+    grid4->addWidget(new QLabel("to"),1,0,1,1);
+    grid4->addWidget(latitudeFrom,0,1,1,1);
+    grid4->addWidget(latitudeTo,1,1,1,1);
+    latitudeFilter->setLayout(grid4);
 
     filterReset = new QPushButton("Reset");
     filterApply = new QPushButton("Apply");
     filters = new QGroupBox("filters");
-    QGridLayout* grid4 = new QGridLayout();
-    grid4->addWidget(timeFilter,0,0,2,2);
-    grid4->addWidget(gpsFilter,2,0,4,2);
-    grid4->addWidget(filterReset,6,0,1,1);
-    grid4->addWidget(filterApply,6,1,1,1);
-    filters->setLayout(grid4);
+    QGridLayout* grid5 = new QGridLayout();
+    grid5->addWidget(dateFilter,0,0,2,2);
+    grid5->addWidget(timeFilter,2,0,2,2);
+    grid5->addWidget(longitudeFilter,4,0,2,2);
+    grid5->addWidget(latitudeFilter,6,0,2,2);
+    grid5->addWidget(filterReset,8,0,1,1);
+    grid5->addWidget(filterApply,8,1,1,1);
+    filters->setLayout(grid5);
 
     gridLayout->addWidget(filters,4,0,7,2);
-    gridLayout->setRowStretch(11,1);
+    gridLayout->setRowStretch(13,1);
 
     chartContainer = new QWidget();
-    gridLayout->addWidget(chartContainer,0,2,12,6);
+    gridLayout->addWidget(chartContainer,0,2,14,6);
     containerLayout = new QGridLayout();
     chartContainer->setLayout(containerLayout);
 
@@ -172,6 +182,8 @@ void UserPage::updateFilters(){
 void UserPage::resetFilters(){
     dateFrom->setDate(QDate(2009,2,1));
     dateTo->setDate(QDate(2010,10,31));
+    timeFrom->setTimeRange(QTime(0,0,0),QTime(23,59,59));
+    timeTo->setTimeRange(QTime(0,0,0),QTime(23,59,59));
     longitudeFrom->setValue(-180.0);
     longitudeTo->setValue(180.0);
     latitudeFrom->setValue(-90.0);
@@ -241,7 +253,7 @@ void UserPage::createTimeChart(){
             cnt[date]=0;
         }
         for (POI* poi : userPOI){
-            QDate date = POI::getDate(poi->time);
+            QDate date = poi->date;
             cnt[QDate(date.year(),date.month(),15)]++;
         }
         for (QDate date : POI::monthRange){
@@ -393,9 +405,15 @@ void UserPage::setChartViews(){
 
 void UserPage::loadData(){
 
-    for (int i=0;i<data->size();i++){
-        int userID = (*data)[i]->userID;
-        userData[userID].push_back((*data)[i]);
+    QListIterator<POI*> it(*data);
+    while (it.hasNext()){
+        POI* poi = it.next();
+        int userID = poi->userID;
+        if (userID>=userData.size()){
+            userData << QList<POI*>();
+        }
+        userData[userID] << poi;
     }
+
     userCnt = userData.size();
 }

@@ -3,7 +3,6 @@
 
 #include <QWidget>
 #include <QFile>
-#include <QVector>
 #include <QList>
 
 #include "poi.h"
@@ -31,7 +30,7 @@ private:
     QString filename;
     QFile *file;
 
-    QVector<POI*> data;
+    QList<POI*> data;
 
     UserPage *userPage;
 };

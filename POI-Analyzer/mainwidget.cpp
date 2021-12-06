@@ -35,8 +35,10 @@ MainWidget::~MainWidget()
 {
     delete ui;
 
-    for (int i=0;i<data.size();i++){
-        delete data[i];
+    QListIterator<POI*> it(data);
+    while (it.hasNext()){
+        POI *poi = it.next();
+        delete poi;
     }
 }
 
@@ -64,7 +66,7 @@ bool MainWidget::loadData(){
         QStringList list=line.split(",");
 
         POI* poi=new POI(list[0].toInt(),list[1].toInt(),list[2],list[3].toDouble(),list[4].toDouble());
-        data.push_back(poi);
+        data << poi;
 
         if (readBytes > interval*factor){
             dialog->setValue(readBytes);
@@ -91,6 +93,4 @@ void MainWidget::setTabs(){
     userPage = new UserPage(&data);
 
     ui->tabWidget->addTab(userPage,"USER");
-
-
 }
