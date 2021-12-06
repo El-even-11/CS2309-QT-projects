@@ -98,12 +98,12 @@ UserPage::UserPage(QList<POI*>* data,QWidget *parent) : QWidget(parent)
 
     filterReset = new QPushButton("Reset");
     filterApply = new QPushButton("Apply");
-    filters = new QGroupBox("filters");
+    filters = new QGroupBox("Filters");
     QGridLayout* grid5 = new QGridLayout();
     grid5->addWidget(dateFilter,0,0,2,2);
     grid5->addWidget(timeFilter,2,0,2,2);
-    grid5->addWidget(longitudeFilter,4,0,2,2);
-    grid5->addWidget(latitudeFilter,6,0,2,2);
+    grid5->addWidget(latitudeFilter,4,0,2,2);
+    grid5->addWidget(longitudeFilter,6,0,2,2);
     grid5->addWidget(filterReset,8,0,1,1);
     grid5->addWidget(filterApply,8,1,1,1);
     filters->setLayout(grid5);
@@ -119,54 +119,18 @@ UserPage::UserPage(QList<POI*>* data,QWidget *parent) : QWidget(parent)
     table->horizontalHeader()->setDisabled(true);
     table->verticalHeader()->setDisabled(true);
     table->setColumnCount(6);
-    table->setRowCount(1);
-    setStyleSheet(
-            "QHeaderView::section{"
-                "border-top:1px solid #D8D8D8;"
-                "border-left:1px solid #D8D8D8;"
-                "border-right:1px solid #D8D8D8;"
-                "border-bottom: 1px solid #D8D8D8;"
-                "background-color:white;"
-                "padding:4px;"
-            "}"
-            "QTableCornerButton::section{"
-                "border-top:0px solid #D8D8D8;"
-                "border-left:0px solid #D8D8D8;"
-                "border-right:0px solid #D8D8D8;"
-                "border-bottom:0px solid #D8D8D8;"
-                "background-color:white;"
-            "}"
-            "QScrollBar:vertical{"
-                "border-top:1px solid #D8D8D8;"
-                "border-left:0px solid #D8D8D8;"
-                "border-right:0px solid #D8D8D8;"
-                "border-bottom:0px solid #D8D8D8;"
-            "}"
-            "QScrollBar:horizontal{"
-                "border-top:0px solid #D8D8D8;"
-                "border-left:1px solid #D8D8D8;"
-                "border-right:0px solid #D8D8D8;"
-                "border-bottom:0px solid #D8D8D8;"
-            "}"
-            );
+
     QStringList header;
-    header << "UserID" << "LocID" << "Date" << "Time" << "Lng" << "Lat";
+    header << "UserID" << "LocID" << "Date" << "Time" << "Latitude" << "Longitude";
     table->setHorizontalHeaderLabels(header);
-    table->setItem(0,0,new QTableWidgetItem("1"));
-    table->setItem(0,1,new QTableWidgetItem("1"));
-    table->setItem(0,2,new QTableWidgetItem("1"));
-    table->setItem(0,3,new QTableWidgetItem("1"));
-    table->setItem(0,4,new QTableWidgetItem("1"));
-    table->setItem(0,5,new QTableWidgetItem("1"));
     tableContainer = new QGroupBox("Records");
     QVBoxLayout *vbox2 = new QVBoxLayout();
-    vbox2->addStretch();
     vbox2->addWidget(table);
     tableContainer->setLayout(vbox2);
-    gridLayout->addWidget(tableContainer,13,0,3,2);
+    gridLayout->addWidget(tableContainer,13,0,10,2);
 
     chartContainer = new QWidget();
-    gridLayout->addWidget(chartContainer,0,2,16,6);
+    gridLayout->addWidget(chartContainer,0,2,23,6);
     containerLayout = new QGridLayout();
     chartContainer->setLayout(containerLayout);
 
@@ -178,114 +142,32 @@ UserPage::UserPage(QList<POI*>* data,QWidget *parent) : QWidget(parent)
     }
     this->setLayout(gridLayout);
 
-    connect(radio1,&QRadioButton::toggled,this,&UserPage::setTimeChartView);
-    connect(radio2,&QRadioButton::toggled,this,&UserPage::setPOIChartView);
-    connect(radio3,&QRadioButton::toggled,this,&UserPage::setCmpChartView);
-    connect(filterApply,&QPushButton::clicked,this,&UserPage::updateFilters);
+    connect(radio1,&QRadioButton::toggled,this,&UserPage::optionChanged);
+    connect(radio2,&QRadioButton::toggled,this,&UserPage::optionChanged);
+    connect(radio3,&QRadioButton::toggled,this,&UserPage::optionChanged);
+    connect(filterApply,&QPushButton::clicked,this,&UserPage::updateUI);
     connect(filterReset,&QPushButton::clicked,this,&UserPage::resetFilters);
+    connect(lineEdit,&QLineEdit::editingFinished,this,&UserPage::updateUI);
     radio1->setChecked(true);
-    connect(lineEdit,&QLineEdit::editingFinished,this,&UserPage::setChartViews);
 }
 
-void UserPage::setTimeChartView(bool checked){
-    if (!checked){
-        return;
-    }
+void UserPage::setTimeChart(const QVector<int>& ids,const QList<POI*>& tuples){
 
     qDebug() << "set time chartview";
     for (QChartView *view : chartviews){
-        containerLayout->removeWidget(view);
-        qDebug() << "remove";
+        delete view;
     }
     chartviews.clear();
     timeChartView = new QChartView();
     timeChartView->setRenderHint(QPainter::Antialiasing,true);
     chartviews << timeChartView;
     containerLayout->addWidget(timeChartView,0,0);
-
-    createTimeChart();
-}
-
-void UserPage::setPOIChartView(bool checked){
-    if (!checked){
-        return;
-    }
-
-    qDebug() << "set poi chartview";
-    for (QChartView *view : chartviews){
-        containerLayout->removeWidget(view);
-        qDebug() << "remove";
-    }
-    chartviews.clear();
-    poiChartView = new QChartView();
-//    poiChartView->setRenderHint(QPainter::Antialiasing,true);
-    chartviews << poiChartView;
-    containerLayout->addWidget(poiChartView,0,0);
-
-    createPOIChart();
-}
-
-void UserPage::setCmpChartView(bool checked){
-
-}
-
-void UserPage::updateFilters(){
-    qDebug() << "update filters";
-}
-
-void UserPage::resetFilters(){
-    dateFrom->setDate(QDate(2009,2,1));
-    dateTo->setDate(QDate(2010,10,31));
-    timeFrom->setTime(QTime(0,0,0));
-    timeTo->setTime(QTime(23,59,59));
-    longitudeFrom->setValue(-180.0);
-    longitudeTo->setValue(180.0);
-    latitudeFrom->setValue(-90.0);
-    latitudeTo->setValue(90.0);
-}
-
-void UserPage::createTimeChart(){
-    qDebug() << "create time chart";
-
-    for (QChart* chart : charts){
-        if (chart){
-            delete chart;
-        }
-    }
     charts.clear();
-    timeChart = nullptr;
-
-    QString text = lineEdit->text();
-    QStringList idsString = text.split(",");
-    QSet<int> idset;
-    QList<int> ids;
-
-    for (int i=0;i<idsString.size();i++){
-        bool ok;
-        int id = idsString[i].toInt(&ok);
-        if (!ok){
-            return;
-        }
-        if (id >= userCnt){
-            qDebug() << userCnt;
-            return;
-        }
-        idset.insert(id);
-    }
-
-    QSetIterator<int> it(idset);
-    while (it.hasNext()){
-        int id=it.next();
-        ids << id;
-    }
-    std::sort(ids.begin(),ids.end());
-
     timeChart = new QChart();
     charts << timeChart;
     timeChart->setLocale(QLocale::English);
     timeChart->setAnimationOptions(QChart::SeriesAnimations);
     timeChart->setAnimationDuration(100);
-
     QDateTimeAxis *axisX = new QDateTimeAxis();
     axisX->setTickCount(POI::monthRange.size());
     axisX->setFormat("MMM yyyy");
@@ -296,10 +178,21 @@ void UserPage::createTimeChart(){
     axisY->setTitleText("Checking-ins count");
     timeChart->addAxis(axisY,Qt::AlignLeft);
 
+    if (tuples.size()==0){
+        return;
+    }
+
+    QHash<int,QVector<POI*>> userTuples;
+    QListIterator<POI*> it(tuples);
+    while (it.hasNext()){
+        POI *poi = it.next();
+        userTuples[poi->userID] << poi;
+    }
+
     int ymax = 0;
     // up to 5 users
     for (int i=0;i<ids.size()&&i<5;i++){
-        QVector<POI*> userPOI = userData[ids[i]];
+        QVector<POI*> userPOI = userTuples[ids[i]];
         QSplineSeries *series = new QSplineSeries();
 
         QHash<QDate,int> cnt;
@@ -323,55 +216,39 @@ void UserPage::createTimeChart(){
     }
 
     axisY->setRange(0,ymax*5/4);
-
-    qDebug() << "here1";
     timeChartView->setChart(timeChart);
 }
 
-void UserPage::createPOIChart(){
-    qDebug() << "create poi chart";
-    for (QChart* chart : charts){
-        if (chart){
-            delete chart;
-        }
+void UserPage::setPOIChart(const QVector<int>& ids,const QList<POI*>& tuples){
+
+    qDebug() << "set poi chartview";
+    for (QChartView *view : chartviews){
+        delete view;
     }
+    chartviews.clear();
+    poiChartView = new QChartView();
+    chartviews << poiChartView;
+    containerLayout->addWidget(poiChartView,0,0);
     charts.clear();
-    poiChart = nullptr;
-
-    QString text = lineEdit->text();
-    QStringList idsString = text.split(",");
-    QSet<int> idset;
-    QList<int> ids;
-
-    // up to 10 users
-    for (int i=0;i<idsString.size()&&i<10;i++){
-        bool ok;
-        int id = idsString[i].toInt(&ok);
-        if (!ok){
-            return;
-        }
-        if (id >= userCnt){
-            qDebug() << userCnt;
-            return;
-        }
-        idset.insert(id);
-    }
-
-    QSetIterator<int> idIT(idset);
-    while (idIT.hasNext()){
-        int id=idIT.next();
-        ids << id;
-    }
-    std::sort(ids.begin(),ids.end());
-
     poiChart = new QChart();
     charts << poiChart;
     poiChart->setAnimationOptions(QChart::SeriesAnimations);
     poiChart->setAnimationDuration(100);
 
+    if (tuples.size()==0){
+        return;
+    }
+
+    QHash<int,QVector<POI*>> userTuples;
+    QListIterator<POI*> it(tuples);
+    while (it.hasNext()){
+        POI *poi = it.next();
+        userTuples[poi->userID] << poi;
+    }
+
     QHash<int,int> poiCnt;
     for (int i=0;i<ids.size();i++){
-        for (POI* poi :userData[ids[i]]){
+        for (POI* poi :userTuples[ids[i]]){
             poiCnt[poi->locID]++;
         }
     }
@@ -395,6 +272,7 @@ void UserPage::createPOIChart(){
         popularPOIs << q.top();
         q.pop();
     }
+
     int ymax=popularPOIs[0].second;
 
     QStackedBarSeries *series = new QStackedBarSeries();
@@ -404,7 +282,7 @@ void UserPage::createPOIChart(){
             QBarSet *set = new QBarSet("user "+QString::number(ids[i]));
             for (int j=0;j<popularPOIs.size();j++){
                 int cnt=0;
-                for (POI* poi :userData[ids[i]]){
+                for (POI* poi : userTuples[ids[i]]){
                     if (poi->locID==popularPOIs[j].first){
                         cnt++;
                     }
@@ -443,18 +321,19 @@ void UserPage::createPOIChart(){
     poiChartView->setChart(poiChart);
 }
 
-void UserPage::createCmpChart(){
+void UserPage::setCmpChart(const QVector<int>& ids,const QList<POI*>& tuples){
 
 }
 
-void UserPage::setChartViews(){
-    if (radio1->isChecked()){
-        setTimeChartView(true);
-    }else if (radio2->isChecked()){
-        setPOIChartView(true);
-    }else if (radio3->isChecked()){
-        setCmpChartView(true);
-    }
+void UserPage::resetFilters(){
+    dateFrom->setDate(QDate(2009,2,1));
+    dateTo->setDate(QDate(2010,10,31));
+    timeFrom->setTime(QTime(0,0,0));
+    timeTo->setTime(QTime(23,59,59));
+    longitudeFrom->setValue(-180.0);
+    longitudeTo->setValue(180.0);
+    latitudeFrom->setValue(-90.0);
+    latitudeTo->setValue(90.0);
 }
 
 void UserPage::loadData(){
@@ -470,4 +349,76 @@ void UserPage::loadData(){
     }
 
     userCnt = userData.size();
+}
+
+void UserPage::updateUI(){
+    QString text = lineEdit->text();
+    QStringList idsString = text.split(",");
+    QSet<int> idset;
+
+    for (int i=0;i<idsString.size();i++){
+        bool ok;
+        int id = idsString[i].toInt(&ok);
+        if (!ok){
+            return;
+        }
+        if (id >= userCnt){
+            qDebug() << userCnt;
+            return;
+        }
+        idset.insert(id);
+    }
+
+    QVector<int> ids;
+    QSetIterator<int> it(idset);
+    while (it.hasNext()){
+        int id=it.next();
+        ids << id;
+    }
+    std::sort(ids.begin(),ids.end());
+
+    QList<POI*> tuples;
+
+    for (int i=0;i<ids.size();i++){
+        tuples.append(userData[ids[i]]);
+    }
+
+    QList<POI*> filtered = POI::filter(tuples,dateFrom->date(),dateTo->date(),timeFrom->time(),timeTo->time(),longitudeFrom->value(),longitudeTo->value(),latitudeFrom->value(),latitudeTo->value());
+
+    if (radio1->isChecked()){
+        setTimeChart(ids,filtered);
+    }else if (radio2->isChecked()){
+        setPOIChart(ids,filtered);
+    }else if (radio3->isChecked()){
+        setCmpChart(ids,filtered);
+    }
+
+    table->clearContents();
+    table->setRowCount(filtered.size());
+
+    QListIterator<POI*> it1(filtered);
+    int row = 0;
+    while (it1.hasNext()){
+        POI* poi = it1.next();
+        table->setItem(row,0,new QTableWidgetItem(QString::number(poi->userID)));
+        table->setItem(row,1,new QTableWidgetItem(QString::number(poi->locID)));
+        table->setItem(row,2,new QTableWidgetItem(poi->date.toString("yyyy-MM-dd")));
+        table->setItem(row,3,new QTableWidgetItem(poi->time.toString()));
+        table->setItem(row,4,new QTableWidgetItem(QString::number(poi->latitude)));
+        table->setItem(row,5,new QTableWidgetItem(QString::number(poi->longitude)));
+        row++;
+    }
+
+    for (int i=0;i<filtered.size();i++){
+        for (int j=0;j<6;j++){
+            table->item(i,j)->setTextAlignment(Qt::AlignCenter);
+        }
+    }
+}
+
+void UserPage::optionChanged(bool checked){
+    if (!checked){
+        return;
+    }
+    updateUI();
 }

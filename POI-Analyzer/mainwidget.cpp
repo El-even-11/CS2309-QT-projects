@@ -28,6 +28,7 @@ MainWidget::MainWidget(QWidget *parent)
         }
         finished = loadData();
     }
+    setStyleSheets();
     setTabs();
 }
 
@@ -93,4 +94,36 @@ void MainWidget::setTabs(){
     userPage = new UserPage(&data);
 
     ui->tabWidget->addTab(userPage,"USER");
+}
+
+void MainWidget::setStyleSheets(){
+    setStyleSheet(
+            "QHeaderView::section{"
+                "border-top:1px solid #D8D8D8;"
+                "border-left:1px solid #D8D8D8;"
+                "border-right:1px solid #D8D8D8;"
+                "border-bottom: 1px solid #D8D8D8;"
+                "background-color:white;"
+                "padding:4px;"
+            "}"
+            "QTableCornerButton::section{"
+                "border-top:0px solid #D8D8D8;"
+                "border-left:0px solid #D8D8D8;"
+                "border-right:0px solid #D8D8D8;"
+                "border-bottom:0px solid #D8D8D8;"
+                "background-color:white;"
+            "}"
+            "QScrollBar:vertical{"
+                "border-top:1px solid #D8D8D8;"
+                "border-left:0px solid #D8D8D8;"
+                "border-right:0px solid #D8D8D8;"
+                "border-bottom:0px solid #D8D8D8;"
+            "}"
+            "QScrollBar:horizontal{"
+                "border-top:0px solid #D8D8D8;"
+                "border-left:1px solid #D8D8D8;"
+                "border-right:0px solid #D8D8D8;"
+                "border-bottom:0px solid #D8D8D8;"
+            "}"
+            );
 }

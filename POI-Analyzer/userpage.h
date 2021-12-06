@@ -19,18 +19,16 @@ public:
     explicit UserPage(QList<POI*>* data,QWidget *parent = nullptr);
 
 public slots:
-    void setTimeChartView(bool checked);
-    void setPOIChartView(bool checked);
-    void setCmpChartView(bool checked);
-    void setChartViews();
     void resetFilters();
-    void updateFilters();
+    void updateUI();
+    void optionChanged(bool checked);
 
 private:
     void loadData();
-    void createTimeChart();
-    void createPOIChart();
-    void createCmpChart();
+
+    void setTimeChart(const QVector<int>& ids,const QList<POI*>& tuples);
+    void setPOIChart(const QVector<int>& ids,const QList<POI*>& tuples);
+    void setCmpChart(const QVector<int>& ids,const QList<POI*>& tuples);
 
 private:
     QGridLayout *gridLayout;

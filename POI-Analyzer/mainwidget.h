@@ -23,6 +23,7 @@ public:
 private:
     bool loadData();
     void setTabs();
+    void setStyleSheets();
 
 private:
     Ui::MainWidget *ui;
