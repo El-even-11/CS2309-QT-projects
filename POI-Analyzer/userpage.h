@@ -55,6 +55,8 @@ private:
     QDoubleSpinBox* latitudeTo;
     QPushButton* filterApply;
     QPushButton* filterReset;
+    QGroupBox* tableContainer;
+    QTableWidget* table;
 
     QWidget *chartContainer;
     QGridLayout* containerLayout;

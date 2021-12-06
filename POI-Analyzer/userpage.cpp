@@ -108,11 +108,65 @@ UserPage::UserPage(QList<POI*>* data,QWidget *parent) : QWidget(parent)
     grid5->addWidget(filterApply,8,1,1,1);
     filters->setLayout(grid5);
 
-    gridLayout->addWidget(filters,4,0,7,2);
-    gridLayout->setRowStretch(13,1);
+    gridLayout->addWidget(filters,4,0,9,2);
+
+    table = new QTableWidget();
+    table->setEditTriggers(QAbstractItemView::NoEditTriggers);
+    table->setHorizontalScrollMode(QAbstractItemView::ScrollPerPixel);
+    table->setVerticalScrollMode(QAbstractItemView::ScrollPerPixel);
+    table->horizontalHeader()->setSectionResizeMode(QHeaderView::Fixed);
+    table->verticalHeader()->setSectionResizeMode(QHeaderView::Fixed);
+    table->horizontalHeader()->setDisabled(true);
+    table->verticalHeader()->setDisabled(true);
+    table->setColumnCount(6);
+    table->setRowCount(1);
+    setStyleSheet(
+            "QHeaderView::section{"
+                "border-top:1px solid #D8D8D8;"
+                "border-left:1px solid #D8D8D8;"
+                "border-right:1px solid #D8D8D8;"
+                "border-bottom: 1px solid #D8D8D8;"
+                "background-color:white;"
+                "padding:4px;"
+            "}"
+            "QTableCornerButton::section{"
+                "border-top:0px solid #D8D8D8;"
+                "border-left:0px solid #D8D8D8;"
+                "border-right:0px solid #D8D8D8;"
+                "border-bottom:0px solid #D8D8D8;"
+                "background-color:white;"
+            "}"
+            "QScrollBar:vertical{"
+                "border-top:1px solid #D8D8D8;"
+                "border-left:0px solid #D8D8D8;"
+                "border-right:0px solid #D8D8D8;"
+                "border-bottom:0px solid #D8D8D8;"
+            "}"
+            "QScrollBar:horizontal{"
+                "border-top:0px solid #D8D8D8;"
+                "border-left:1px solid #D8D8D8;"
+                "border-right:0px solid #D8D8D8;"
+                "border-bottom:0px solid #D8D8D8;"
+            "}"
+            );
+    QStringList header;
+    header << "UserID" << "LocID" << "Date" << "Time" << "Lng" << "Lat";
+    table->setHorizontalHeaderLabels(header);
+    table->setItem(0,0,new QTableWidgetItem("1"));
+    table->setItem(0,1,new QTableWidgetItem("1"));
+    table->setItem(0,2,new QTableWidgetItem("1"));
+    table->setItem(0,3,new QTableWidgetItem("1"));
+    table->setItem(0,4,new QTableWidgetItem("1"));
+    table->setItem(0,5,new QTableWidgetItem("1"));
+    tableContainer = new QGroupBox("Records");
+    QVBoxLayout *vbox2 = new QVBoxLayout();
+    vbox2->addStretch();
+    vbox2->addWidget(table);
+    tableContainer->setLayout(vbox2);
+    gridLayout->addWidget(tableContainer,13,0,3,2);
 
     chartContainer = new QWidget();
-    gridLayout->addWidget(chartContainer,0,2,14,6);
+    gridLayout->addWidget(chartContainer,0,2,16,6);
     containerLayout = new QGridLayout();
     chartContainer->setLayout(containerLayout);
 
@@ -182,8 +236,8 @@ void UserPage::updateFilters(){
 void UserPage::resetFilters(){
     dateFrom->setDate(QDate(2009,2,1));
     dateTo->setDate(QDate(2010,10,31));
-    timeFrom->setTimeRange(QTime(0,0,0),QTime(23,59,59));
-    timeTo->setTimeRange(QTime(0,0,0),QTime(23,59,59));
+    timeFrom->setTime(QTime(0,0,0));
+    timeTo->setTime(QTime(23,59,59));
     longitudeFrom->setValue(-180.0);
     longitudeTo->setValue(180.0);
     latitudeFrom->setValue(-90.0);
