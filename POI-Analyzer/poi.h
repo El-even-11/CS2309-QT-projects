@@ -12,6 +12,7 @@ public:
     POI(int userID,int locID,QString datetime,double latitude,double longitude);
 
     static QList<POI*> filter(const QList<POI*>& tuples,QDate minDate,QDate maxDate,QTime minTime,QTime maxTime,double minLng,double maxLng,double minLat,double maxLat);
+    static QString timeInterval(QTime time);
 
     int userID;
     int locID;
@@ -21,6 +22,7 @@ public:
     double longitude;
 
     static QVector<QDate> monthRange;
+    static QVector<QString> timeIntervals;
 
 private:
     static QList<POI*> dateFilter(const QList<POI*>& tuples,QDate minDate,QDate maxDate);

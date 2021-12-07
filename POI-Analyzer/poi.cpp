@@ -18,6 +18,22 @@ QList<POI*> POI::filter(const QList<POI*>& tuples,QDate minDate,QDate maxDate,QT
     return latFilter(lngFilter(timeFilter(dateFilter(tuples,minDate,maxDate),minTime,maxTime),minLng,maxLng),minLat,maxLat);
 }
 
+QString POI::timeInterval(QTime time){
+    if (time<=QTime(5,59,59)){
+        return "Before dawn";
+    }else if(time <= QTime(10,59,59)){
+        return "Morning";
+    }else if(time <= QTime(12,59,59)){
+        return "Noon";
+    }else if(time <= QTime(17,59,59)){
+        return "Afternoon";
+    }else if(time <= QTime(20,59,59)){
+        return "Evening";
+    }else {
+        return "Midnight";
+    }
+}
+
 QList<POI*> POI::dateFilter(const QList<POI*>& tuples,QDate minDate,QDate maxDate){
     if (minDate==QDate(2009,2,1)&&maxDate==QDate(2010,10,31)){
         return tuples;
@@ -86,7 +102,8 @@ QList<POI*> POI::latFilter(const QList<POI*>& tuples,double minLat,double maxLat
     return filtered;
 }
 
-QVector<QDate> POI::monthRange{QDate(2009,2,15),
+QVector<QDate> POI::monthRange{
+            QDate(2009,2,15),
             QDate(2009,3,15),
             QDate(2009,4,15),
             QDate(2009,5,15),
@@ -107,4 +124,13 @@ QVector<QDate> POI::monthRange{QDate(2009,2,15),
             QDate(2010,8,15),
             QDate(2010,9,15),
             QDate(2010,10,15),
-                              };
+};
+
+QVector<QString> POI::timeIntervals{
+    "Before dawn",
+    "Morning",
+    "Noon",
+    "Afternoon",
+    "Evening",
+    "Midnight"
+};

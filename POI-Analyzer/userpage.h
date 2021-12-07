@@ -26,9 +26,10 @@ public slots:
 private:
     void loadData();
 
-    void setTimeChart(const QVector<int>& ids,const QList<POI*>& tuples);
+    void setGeneralChart(const QVector<int>& ids,const QList<POI*>& tuples);
     void setPOIChart(const QVector<int>& ids,const QList<POI*>& tuples);
     void setCmpChart(const QVector<int>& ids,const QList<POI*>& tuples);
+    void setDailyChart(const QVector<int>& ids,const QList<POI*>& tuples);
 
 private:
     QGridLayout *gridLayout;
@@ -38,6 +39,7 @@ private:
     QRadioButton* radio1;
     QRadioButton* radio2;
     QRadioButton* radio3;
+    QRadioButton* radio4;
     QGroupBox* filters;
     QGroupBox* dateFilter;
     QDateEdit* dateFrom;
@@ -58,10 +60,18 @@ private:
 
     QWidget *chartContainer;
     QGridLayout* containerLayout;
-    QChartView *timeChartView;
-    QChart *timeChart;
+    QChartView *generalChartView;
+    QChart *generalChart;
     QChartView *poiChartView;
     QChart *poiChart;
+    QChartView *cmpChartView1;
+    QChartView *cmpChartView2;
+    QChartView *cmpChartView3;
+    QChartView *cmpChartView4;
+    QChart *cmpChart1;
+    QChart *cmpChart2;
+    QChart *cmpChart3;
+    QChart *cmpChart4;
 
     QList<QChartView*> chartviews;
     QList<QChart*> charts;
