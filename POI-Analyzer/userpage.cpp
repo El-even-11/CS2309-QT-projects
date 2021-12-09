@@ -1,5 +1,4 @@
 #include "userpage.h"
-#include <QDebug>
 #include <QLabel>
 #include <QTime>
 #include <QSet>
@@ -159,8 +158,6 @@ UserPage::UserPage(QList<POI*>* data,QWidget *parent) : QWidget(parent)
 }
 
 void UserPage::setGeneralChart(const QVector<int>& ids,const QList<POI*>& tuples){
-
-    qDebug() << "set time chartview";
     for (QChartView *view : chartviews){
         delete view;
     }
@@ -227,8 +224,6 @@ void UserPage::setGeneralChart(const QVector<int>& ids,const QList<POI*>& tuples
 }
 
 void UserPage::setPOIChart(const QVector<int>& ids,const QList<POI*>& tuples){
-
-    qDebug() << "set poi chartview";
     for (QChartView *view : chartviews){
         delete view;
     }
@@ -329,7 +324,6 @@ void UserPage::setPOIChart(const QVector<int>& ids,const QList<POI*>& tuples){
 }
 
 void UserPage::setCmpChart(const QVector<int>& ids,const QList<POI*>& tuples){
-    qDebug() << "set cmp chartview";
     for (QChartView *view : chartviews){
         delete view;
     }
@@ -668,6 +662,9 @@ void UserPage::loadData(){
 
 void UserPage::updateUI(){
     QString text = lineEdit->text();
+    QList<POI*> tuples;
+    QVector<int> ids;
+
     QStringList idsString = text.split(",");
     QSet<int> idset;
 
@@ -678,21 +675,17 @@ void UserPage::updateUI(){
             return;
         }
         if (id >= userCnt){
-            qDebug() << userCnt;
             return;
         }
         idset.insert(id);
     }
 
-    QVector<int> ids;
     QSetIterator<int> it(idset);
     while (it.hasNext()){
         int id=it.next();
         ids << id;
     }
     std::sort(ids.begin(),ids.end());
-
-    QList<POI*> tuples;
 
     for (int i=0;i<ids.size();i++){
         tuples.append(userData[ids[i]]);

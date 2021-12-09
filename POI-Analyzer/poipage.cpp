@@ -1,5 +1,4 @@
 #include "poipage.h"
-#include <QDebug>
 #include <QLabel>
 #include <QTime>
 #include <QSet>
@@ -160,7 +159,6 @@ POIPage::POIPage(QList<POI*>* data,QWidget *parent) : QWidget(parent)
 
 void POIPage::setGeneralChart(const QVector<int>& ids,const QList<POI*>& tuples){
 
-    qDebug() << "set time chartview";
     for (QChartView *view : chartviews){
         delete view;
     }
@@ -233,29 +231,29 @@ void POIPage::setUserChart(const QVector<int>& ids,const QList<POI*>& tuples){
     }
     chartviews.clear();
     userChartView = new QChartView();
-    chartviews << poiChartView;
-    containerLayout->addWidget(poiChartView,0,0,2,2);
+    chartviews << userChartView;
+    containerLayout->addWidget(userChartView,0,0,2,2);
     charts.clear();
-    poiChart = new QChart();
-    charts << poiChart;
-    poiChart->setAnimationOptions(QChart::SeriesAnimations);
-    poiChart->setAnimationDuration(100);
+    userChart = new QChart();
+    charts << userChart;
+    userChart->setAnimationOptions(QChart::SeriesAnimations);
+    userChart->setAnimationDuration(100);
 
     if (tuples.size()==0){
         return;
     }
 
-    QHash<int,QVector<POI*>> userTuples;
+    QHash<int,QVector<POI*>> poiTuples;
     QListIterator<POI*> it(tuples);
     while (it.hasNext()){
         POI *poi = it.next();
-        userTuples[poi->userID] << poi;
+        poiTuples[poi->locID] << poi;
     }
 
-    QHash<int,int> poiCnt;
+    QHash<int,int> userCnt;
     for (int i=0;i<ids.size();i++){
-        for (POI* poi :userTuples[ids[i]]){
-            poiCnt[poi->locID]++;
+        for (POI* poi :poiTuples[ids[i]]){
+            userCnt[poi->userID]++;
         }
     }
 
@@ -267,29 +265,29 @@ void POIPage::setUserChart(const QVector<int>& ids,const QList<POI*>& tuples){
 
     std::priority_queue<std::pair<int,int>,std::vector<std::pair<int,int>>,cmp> q;
 
-    QHashIterator<int,int> cntIT(poiCnt);
+    QHashIterator<int,int> cntIT(userCnt);
     while (cntIT.hasNext()){
         cntIT.next();
         q.push(std::pair(cntIT.key(),cntIT.value()));
     }
 
-    QVector<std::pair<int,int>> popularPOIs;
+    QVector<std::pair<int,int>> activeUsers;
     for (int i=0;i<10&&!q.empty();i++){
-        popularPOIs << q.top();
+        activeUsers << q.top();
         q.pop();
     }
 
-    int ymax=popularPOIs[0].second;
+    int ymax=activeUsers[0].second;
 
     QStackedBarSeries *series = new QStackedBarSeries();
     if (ids.size()<=5){
         // up to 5 bars
         for (int i=0;i<ids.size();i++){
-            QBarSet *set = new QBarSet("user "+QString::number(ids[i]));
-            for (int j=0;j<popularPOIs.size();j++){
+            QBarSet *set = new QBarSet("loc "+QString::number(ids[i]));
+            for (int j=0;j<activeUsers.size();j++){
                 int cnt=0;
-                for (POI* poi : userTuples[ids[i]]){
-                    if (poi->locID==popularPOIs[j].first){
+                for (POI* poi : poiTuples[ids[i]]){
+                    if (poi->userID==activeUsers[j].first){
                         cnt++;
                     }
                 }
@@ -298,37 +296,36 @@ void POIPage::setUserChart(const QVector<int>& ids,const QList<POI*>& tuples){
             series->append(set);
         }
     }else{
-        QString users;
+        QString pois;
         for (int i=0;i<ids.size();i++){
-            users += (" "+QString::number(ids[i]));
+            pois += (" "+QString::number(ids[i]));
         }
 
-        QBarSet *set = new QBarSet("user "+users);
-        for (int i=0;i<popularPOIs.size();i++){
-            *set << popularPOIs[i].second;
+        QBarSet *set = new QBarSet("loc "+pois);
+        for (int i=0;i<activeUsers.size();i++){
+            *set << activeUsers[i].second;
         }
         series->append(set);
     }
 
     QBarCategoryAxis *axisX = new QBarCategoryAxis();
-    axisX->setTitleText("Location id");
-    for (int i=0;i<popularPOIs.size();i++){
-        axisX->append(QString::number(popularPOIs[i].first));
+    axisX->setTitleText("User id");
+    for (int i=0;i<activeUsers.size();i++){
+        axisX->append(QString::number(activeUsers[i].first));
     }
     QValueAxis *axisY = new QValueAxis();
     axisY->setTitleText("Checking-ins count");
     axisY->setTickCount(8);
     axisY->setRange(0,ymax*5/4);
     axisY->setLabelFormat("%d");
-    poiChart->addAxis(axisX,Qt::AlignBottom);
-    poiChart->addAxis(axisY,Qt::AlignLeft);
-    poiChart->addSeries(series);
+    userChart->addAxis(axisX,Qt::AlignBottom);
+    userChart->addAxis(axisY,Qt::AlignLeft);
+    userChart->addSeries(series);
     series->attachAxis(axisY);
-    poiChartView->setChart(poiChart);
+    userChartView->setChart(userChart);
 }
 
 void POIPage::setCmpChart(const QVector<int>& ids,const QList<POI*>& tuples){
-    qDebug() << "set cmp chartview";
     for (QChartView *view : chartviews){
         delete view;
     }
@@ -367,19 +364,19 @@ void POIPage::setCmpChart(const QVector<int>& ids,const QList<POI*>& tuples){
         return;
     }
 
-    QHash<int,QVector<POI*>> userTuples;
+    QHash<int,QVector<POI*>> poiTuples;
     QListIterator<POI*> it(tuples);
     while (it.hasNext()){
         POI *poi = it.next();
-        userTuples[poi->userID] << poi;
+        poiTuples[poi->locID] << poi;
     }
 
     if (ids.size()==1){
-        // popular pois
-        QHash<int,int> poiCnt;
+        // active users
+        QHash<int,int> userCnt;
 
-        for (POI* poi :userTuples[ids[0]]){
-            poiCnt[poi->locID]++;
+        for (POI* poi :poiTuples[ids[0]]){
+            userCnt[poi->userID]++;
         }
 
         struct cmp{
@@ -390,21 +387,21 @@ void POIPage::setCmpChart(const QVector<int>& ids,const QList<POI*>& tuples){
 
         std::priority_queue<std::pair<int,int>,std::vector<std::pair<int,int>>,cmp> q;
 
-        QHashIterator<int,int> cntIT(poiCnt);
+        QHashIterator<int,int> cntIT(userCnt);
         while (cntIT.hasNext()){
             cntIT.next();
             q.push(std::pair(cntIT.key(),cntIT.value()));
         }
 
-        QVector<std::pair<int,int>> popularPOIs;
+        QVector<std::pair<int,int>> activeUsers;
         for (int i=0;i<7&&!q.empty();i++){
-            popularPOIs << q.top();
+            activeUsers << q.top();
             q.pop();
         }
 
         QPieSeries *series1 = new QPieSeries();
-        for (int i=0;i<popularPOIs.size();i++){
-            QPieSlice *slice = series1->append("loc "+QString::number(popularPOIs[i].first),popularPOIs[i].second);
+        for (int i=0;i<activeUsers.size();i++){
+            QPieSlice *slice = series1->append("user "+QString::number(activeUsers[i].first),activeUsers[i].second);
             if (i==0){
                 slice->setLabelVisible();
                 slice->setExploded();
@@ -413,12 +410,12 @@ void POIPage::setCmpChart(const QVector<int>& ids,const QList<POI*>& tuples){
         }
         series1->setPieSize(0.4);
         cmpChart1->addSeries(series1);
-        cmpChart1->setTitle("POIs with most checking-ins by user "+QString::number(ids[0]));
+        cmpChart1->setTitle("Most active users of POI with location id "+QString::number(ids[0]));
 
         // daily checking-ins
         QHash<QString,int> timeCnt;
-        for (int i=0;i<userTuples[ids[0]].size();i++){
-            POI *poi = userTuples[ids[0]][i];
+        for (int i=0;i<poiTuples[ids[0]].size();i++){
+            POI *poi = poiTuples[ids[0]][i];
             timeCnt[POI::timeInterval(poi->time)]++;
         }
 
@@ -441,13 +438,13 @@ void POIPage::setCmpChart(const QVector<int>& ids,const QList<POI*>& tuples){
         }
         series3->setPieSize(0.4);
         cmpChart3->addSeries(series3);
-        cmpChart3->setTitle("Daily active period of user "+QString::number(ids[0]));
+        cmpChart3->setTitle("Daily checking-ins of POI with location id "+QString::number(ids[0]));
     }else{
-        // popular pois
-        QHash<int,int> poiCnt;
+        // active users
+        QHash<int,int> userCnt;
 
-        for (POI* poi :userTuples[ids[0]]){
-            poiCnt[poi->locID]++;
+        for (POI* poi :poiTuples[ids[0]]){
+            userCnt[poi->userID]++;
         }
 
         struct cmp{
@@ -458,21 +455,21 @@ void POIPage::setCmpChart(const QVector<int>& ids,const QList<POI*>& tuples){
 
         std::priority_queue<std::pair<int,int>,std::vector<std::pair<int,int>>,cmp> q;
 
-        QHashIterator<int,int> cntIT(poiCnt);
+        QHashIterator<int,int> cntIT(userCnt);
         while (cntIT.hasNext()){
             cntIT.next();
             q.push(std::pair(cntIT.key(),cntIT.value()));
         }
 
-        QVector<std::pair<int,int>> popularPOIs;
+        QVector<std::pair<int,int>> activeUsers;
         for (int i=0;i<7&&!q.empty();i++){
-            popularPOIs << q.top();
+            activeUsers << q.top();
             q.pop();
         }
 
         QPieSeries *series1 = new QPieSeries();
-        for (int i=0;i<popularPOIs.size();i++){
-            QPieSlice *slice = series1->append("loc "+QString::number(popularPOIs[i].first),popularPOIs[i].second);
+        for (int i=0;i<activeUsers.size();i++){
+            QPieSlice *slice = series1->append("user "+QString::number(activeUsers[i].first),activeUsers[i].second);
             if (i==0){
                 slice->setLabelVisible();
                 slice->setExploded();
@@ -481,33 +478,33 @@ void POIPage::setCmpChart(const QVector<int>& ids,const QList<POI*>& tuples){
         }
         series1->setPieSize(0.4);
         cmpChart1->addSeries(series1);
-        cmpChart1->setTitle("POIs with most checking-ins by user "+QString::number(ids[0]));
+        cmpChart1->setTitle("Most active users of POI with location id "+QString::number(ids[0]));
 
-        poiCnt.clear();
+        userCnt.clear();
 
-        for (POI* poi :userTuples[ids[1]]){
-            poiCnt[poi->locID]++;
+        for (POI* poi :poiTuples[ids[1]]){
+            userCnt[poi->userID]++;
         }
 
         while (!q.empty()){
             q.pop();
         }
 
-        QHashIterator<int,int> cntIT1(poiCnt);
+        QHashIterator<int,int> cntIT1(userCnt);
         while (cntIT1.hasNext()){
             cntIT1.next();
             q.push(std::pair(cntIT1.key(),cntIT1.value()));
         }
 
-        popularPOIs.clear();
+        activeUsers.clear();
         for (int i=0;i<7&&!q.empty();i++){
-            popularPOIs << q.top();
+            activeUsers << q.top();
             q.pop();
         }
 
         QPieSeries *series2 = new QPieSeries();
-        for (int i=0;i<popularPOIs.size();i++){
-            QPieSlice *slice = series2->append("loc "+QString::number(popularPOIs[i].first),popularPOIs[i].second);
+        for (int i=0;i<activeUsers.size();i++){
+            QPieSlice *slice = series2->append("user "+QString::number(activeUsers[i].first),activeUsers[i].second);
             if (i==0){
                 slice->setLabelVisible();
                 slice->setExploded();
@@ -516,12 +513,12 @@ void POIPage::setCmpChart(const QVector<int>& ids,const QList<POI*>& tuples){
         }
         series2->setPieSize(0.4);
         cmpChart2->addSeries(series2);
-        cmpChart2->setTitle("POIs with most checking-ins by user "+QString::number(ids[1]));
+        cmpChart2->setTitle("Most active users of POI with location id "+QString::number(ids[1]));
 
         // daily checking-ins
         QHash<QString,int> timeCnt;
-        for (int i=0;i<userTuples[ids[0]].size();i++){
-            POI *poi = userTuples[ids[0]][i];
+        for (int i=0;i<poiTuples[ids[0]].size();i++){
+            POI *poi = poiTuples[ids[0]][i];
             timeCnt[POI::timeInterval(poi->time)]++;
         }
 
@@ -544,11 +541,11 @@ void POIPage::setCmpChart(const QVector<int>& ids,const QList<POI*>& tuples){
         }
         series3->setPieSize(0.4);
         cmpChart3->addSeries(series3);
-        cmpChart3->setTitle("Daily active period of user "+QString::number(ids[0]));
+        cmpChart3->setTitle("Daily checking-ins of POI with location id "+QString::number(ids[0]));
 
         timeCnt.clear();
-        for (int i=0;i<userTuples[ids[1]].size();i++){
-            POI *poi = userTuples[ids[1]][i];
+        for (int i=0;i<poiTuples[ids[1]].size();i++){
+            POI *poi = poiTuples[ids[1]][i];
             timeCnt[POI::timeInterval(poi->time)]++;
         }
 
@@ -571,7 +568,7 @@ void POIPage::setCmpChart(const QVector<int>& ids,const QList<POI*>& tuples){
         }
         series4->setPieSize(0.4);
         cmpChart4->addSeries(series4);
-        cmpChart4->setTitle("Daily active period of user "+QString::number(ids[1]));
+        cmpChart4->setTitle("Daily checking-ins of POI with location id "+QString::number(ids[1]));
     }
 
     cmpChartView1->setChart(cmpChart1);
@@ -598,21 +595,21 @@ void POIPage::setDailyChart(const QVector<int>& ids,const QList<POI*>& tuples){
         return;
     }
 
-    QHash<int,QVector<POI*>> userTuples;
+    QHash<int,QVector<POI*>> poiTuples;
     QListIterator<POI*> it(tuples);
     while (it.hasNext()){
         POI *poi = it.next();
-        userTuples[poi->userID] << poi;
+        poiTuples[poi->locID] << poi;
     }
 
     int ymax=0;
     QBarSeries *series = new QBarSeries();
     for (int i=0;i<ids.size()&&i<5;i++){
         QHash<QString,int> cnt;
-        for (POI* poi : userTuples[ids[i]]){
+        for (POI* poi : poiTuples[ids[i]]){
             cnt[POI::timeInterval(poi->time)]++;
         }
-        QBarSet *set = new QBarSet("user "+QString::number(ids[i]));
+        QBarSet *set = new QBarSet("loc "+QString::number(ids[i]));
         for (QString timeInterval : POI::timeIntervals){
             ymax = cnt[timeInterval]>ymax?cnt[timeInterval]:ymax;
             *set << cnt[timeInterval];
@@ -651,7 +648,6 @@ void POIPage::resetFilters(){
 }
 
 void POIPage::loadData(){
-
     QListIterator<POI*> it(*data);
     while (it.hasNext()){
         POI* poi = it.next();
@@ -661,12 +657,14 @@ void POIPage::loadData(){
         }
         poiData[locID] << poi;
     }
-
     poiCnt = poiData.size();
 }
 
 void POIPage::updateUI(){
     QString text = lineEdit->text();
+    QList<POI*> tuples;
+    QVector<int> ids;
+
     QStringList idsString = text.split(",");
     QSet<int> idset;
 
@@ -676,14 +674,12 @@ void POIPage::updateUI(){
         if (!ok){
             return;
         }
-        if (id >= userCnt){
-            qDebug() << userCnt;
+        if (id >= poiCnt){
             return;
         }
         idset.insert(id);
     }
 
-    QVector<int> ids;
     QSetIterator<int> it(idset);
     while (it.hasNext()){
         int id=it.next();
@@ -691,10 +687,9 @@ void POIPage::updateUI(){
     }
     std::sort(ids.begin(),ids.end());
 
-    QList<POI*> tuples;
 
     for (int i=0;i<ids.size();i++){
-        tuples.append(userData[ids[i]]);
+        tuples.append(poiData[ids[i]]);
     }
 
     QList<POI*> filtered = POI::filter(tuples,dateFrom->date(),dateTo->date(),timeFrom->time(),timeTo->time(),longitudeFrom->value(),longitudeTo->value(),latitudeFrom->value(),latitudeTo->value());
@@ -702,7 +697,7 @@ void POIPage::updateUI(){
     if (radio1->isChecked()){
         setGeneralChart(ids,filtered);
     }else if (radio2->isChecked()){
-        setPOIChart(ids,filtered);
+        setUserChart(ids,filtered);
     }else if (radio3->isChecked()){
         setCmpChart(ids,filtered);
     }else if (radio4->isChecked()){
