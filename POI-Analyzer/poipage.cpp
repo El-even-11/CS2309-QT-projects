@@ -24,10 +24,10 @@ POIPage::POIPage(QList<POI*>* data,QWidget *parent) : QWidget(parent)
     QGridLayout *grid1 = new QGridLayout();
     grid1->addWidget(radio1,0,0,1,1);
     grid1->addWidget(radio2,1,0,1,1);
-    grid1->addWidget(radio3,2,0,1,1);
+    grid1->addWidget(radio3,1,1,1,1);
     grid1->addWidget(radio4,0,1,1,1);
     optionBox->setLayout(grid1);
-    gridLayout->addWidget(optionBox,1,0,3,2);
+    gridLayout->addWidget(optionBox,1,0,2,2);
 
     dateFilter = new QGroupBox("Date");
     QGridLayout* grid2 = new QGridLayout();
@@ -99,6 +99,8 @@ POIPage::POIPage(QList<POI*>* data,QWidget *parent) : QWidget(parent)
 
     filterReset = new QPushButton("Reset");
     filterApply = new QPushButton("Apply");
+    QLabel *label1 = new QLabel(QString::number(data->size())+" records loaded");
+    filterLabel = new QLabel("0 records filtered");
     filters = new QGroupBox("Filters");
     QGridLayout* grid6 = new QGridLayout();
     grid6->addWidget(dateFilter,0,0,2,2);
@@ -107,9 +109,11 @@ POIPage::POIPage(QList<POI*>* data,QWidget *parent) : QWidget(parent)
     grid6->addWidget(longitudeFilter,6,0,2,2);
     grid6->addWidget(filterReset,8,0,1,1);
     grid6->addWidget(filterApply,8,1,1,1);
+    grid6->addWidget(label1,9,0,1,1);
+    grid6->addWidget(filterLabel,9,1,1,1);
     filters->setLayout(grid6);
 
-    gridLayout->addWidget(filters,4,0,9,2);
+    gridLayout->addWidget(filters,3,0,10,2);
 
     table = new QTableWidget();
     table->setEditTriggers(QAbstractItemView::NoEditTriggers);
@@ -693,6 +697,7 @@ void POIPage::updateUI(){
     }
 
     QList<POI*> filtered = POI::filter(tuples,dateFrom->date(),dateTo->date(),timeFrom->time(),timeTo->time(),longitudeFrom->value(),longitudeTo->value(),latitudeFrom->value(),latitudeTo->value());
+    filterLabel->setText(QString::number(filtered.size())+" records filtered");
 
     if (radio1->isChecked()){
         setGeneralChart(ids,filtered);

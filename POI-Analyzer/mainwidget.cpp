@@ -61,20 +61,12 @@ bool MainWidget::loadData(){
     bool finished = true;
     int factor = 0;
     int interval = size / 100;
-    double minLat = 90;
-    double maxLat = -90;
-    double minLng = 180;
-    double maxLng = -180;
     while (!in.atEnd()){
         QString line = in.readLine();
         readBytes+=line.length()+2;
         QStringList list=line.split(",");
 
         POI* poi=new POI(list[0].toInt(),list[1].toInt(),list[2],list[3].toDouble(),list[4].toDouble());
-        minLat = poi->latitude<minLat?poi->latitude:minLat;
-        maxLat = poi->latitude>maxLat?poi->latitude:maxLat;
-        minLng = poi->longitude<minLng?poi->longitude:minLng;
-        maxLng = poi->longitude>maxLng?poi->longitude:maxLng;
         data << poi;
 
         if (readBytes > interval*factor){
@@ -92,10 +84,6 @@ bool MainWidget::loadData(){
         dialog->setValue(size);
         qDebug() << readBytes;
     }
-    qDebug () << "minLat" << minLat;
-    qDebug () << "maxLat" << maxLat;
-    qDebug () << "minLng" << minLng;
-    qDebug () << "maxLng" << maxLng;
     dialog->close();
     delete dialog;
     return finished;
