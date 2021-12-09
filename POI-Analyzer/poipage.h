@@ -1,5 +1,5 @@
-#ifndef USERPAGE_H
-#define USERPAGE_H
+#ifndef POIPAGE_H
+#define POIPAGE_H
 
 #include <QWidget>
 #include <QGroupBox>
@@ -9,14 +9,13 @@
 #include <QtCharts>
 #include <QVector>
 #include <QMap>
-
 #include "poi.h"
 
-class UserPage : public QWidget
+class POIPage : public QWidget
 {
     Q_OBJECT
 public:
-    explicit UserPage(QList<POI*>* data,QWidget *parent = nullptr);
+    explicit POIPage(QList<POI*>* data,QWidget *parent = nullptr);
 
 public slots:
     void resetFilters();
@@ -27,7 +26,7 @@ private:
     void loadData();
 
     void setGeneralChart(const QVector<int>& ids,const QList<POI*>& tuples);
-    void setPOIChart(const QVector<int>& ids,const QList<POI*>& tuples);
+    void setUserChart(const QVector<int>& ids,const QList<POI*>& tuples);
     void setCmpChart(const QVector<int>& ids,const QList<POI*>& tuples);
     void setDailyChart(const QVector<int>& ids,const QList<POI*>& tuples);
 
@@ -62,8 +61,8 @@ private:
     QGridLayout* containerLayout;
     QChartView *generalChartView;
     QChart *generalChart;
-    QChartView *poiChartView;
-    QChart *poiChart;
+    QChartView *userChartView;
+    QChart *userChart;
     QChartView *dailyChartView;
     QChart *dailyChart;
     QChartView *cmpChartView1;
@@ -80,8 +79,9 @@ private:
 
     QList<POI*>* data;
 
-    int userCnt;
-    QVector<QList<POI*>> userData;
+    int poiCnt;
+    QVector<QList<POI*>> poiData;
+
 };
 
-#endif // USERPAGE_H
+#endif // POIPAGE_H

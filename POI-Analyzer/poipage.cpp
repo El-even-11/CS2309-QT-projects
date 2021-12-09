@@ -1,4 +1,4 @@
-#include "userpage.h"
+#include "poipage.h"
 #include <QDebug>
 #include <QLabel>
 #include <QTime>
@@ -6,20 +6,20 @@
 #include <algorithm>
 #include <queue>
 
-UserPage::UserPage(QList<POI*>* data,QWidget *parent) : QWidget(parent)
+POIPage::POIPage(QList<POI*>* data,QWidget *parent) : QWidget(parent)
 {
     this->data=data;
     loadData();
 
     gridLayout = new QGridLayout();
-    QLabel *label = new QLabel("user id:");
+    QLabel *label = new QLabel("location id:");
     gridLayout->addWidget(label,0,0,1,1);
     lineEdit = new QLineEdit();
     gridLayout->addWidget(lineEdit,0,1,1,1);
 
     optionBox = new QGroupBox("Options");
     radio1 = new QRadioButton("General trends");
-    radio2 = new QRadioButton("Top 10 popular POIs");
+    radio2 = new QRadioButton("Top 10 active users");
     radio3 = new QRadioButton("Comparison");
     radio4 = new QRadioButton("Daily trends");
     QGridLayout *grid1 = new QGridLayout();
@@ -148,17 +148,17 @@ UserPage::UserPage(QList<POI*>* data,QWidget *parent) : QWidget(parent)
     }
     this->setLayout(gridLayout);
 
-    connect(radio1,&QRadioButton::toggled,this,&UserPage::optionChanged);
-    connect(radio2,&QRadioButton::toggled,this,&UserPage::optionChanged);
-    connect(radio3,&QRadioButton::toggled,this,&UserPage::optionChanged);
-    connect(radio4,&QRadioButton::toggled,this,&UserPage::optionChanged);
-    connect(filterApply,&QPushButton::clicked,this,&UserPage::updateUI);
-    connect(filterReset,&QPushButton::clicked,this,&UserPage::resetFilters);
-    connect(lineEdit,&QLineEdit::editingFinished,this,&UserPage::updateUI);
+    connect(radio1,&QRadioButton::toggled,this,&POIPage::optionChanged);
+    connect(radio2,&QRadioButton::toggled,this,&POIPage::optionChanged);
+    connect(radio3,&QRadioButton::toggled,this,&POIPage::optionChanged);
+    connect(radio4,&QRadioButton::toggled,this,&POIPage::optionChanged);
+    connect(filterApply,&QPushButton::clicked,this,&POIPage::updateUI);
+    connect(filterReset,&QPushButton::clicked,this,&POIPage::resetFilters);
+    connect(lineEdit,&QLineEdit::editingFinished,this,&POIPage::updateUI);
     radio1->setChecked(true);
 }
 
-void UserPage::setGeneralChart(const QVector<int>& ids,const QList<POI*>& tuples){
+void POIPage::setGeneralChart(const QVector<int>& ids,const QList<POI*>& tuples){
 
     qDebug() << "set time chartview";
     for (QChartView *view : chartviews){
@@ -189,24 +189,24 @@ void UserPage::setGeneralChart(const QVector<int>& ids,const QList<POI*>& tuples
         return;
     }
 
-    QHash<int,QVector<POI*>> userTuples;
+    QHash<int,QVector<POI*>> poiTuples;
     QListIterator<POI*> it(tuples);
     while (it.hasNext()){
         POI *poi = it.next();
-        userTuples[poi->userID] << poi;
+        poiTuples[poi->locID] << poi;
     }
 
     int ymax = 0;
-    // up to 5 users
+    // up to 5 pois
     for (int i=0;i<ids.size()&&i<5;i++){
-        QVector<POI*> userPOI = userTuples[ids[i]];
+        QVector<POI*> pois = poiTuples[ids[i]];
         QSplineSeries *series = new QSplineSeries();
 
         QHash<QDate,int> cnt;
         for (QDate date : POI::monthRange){
             cnt[date]=0;
         }
-        for (POI* poi : userPOI){
+        for (POI* poi : pois){
             QDate date = poi->date;
             cnt[QDate(date.year(),date.month(),15)]++;
         }
@@ -216,7 +216,7 @@ void UserPage::setGeneralChart(const QVector<int>& ids,const QList<POI*>& tuples
             ymax = ymax>cnt[date]?ymax:cnt[date];
             series->append(momentInTime.toMSecsSinceEpoch(),cnt[date]);
         }
-        series->setName("user "+QString::number(ids[i]));
+        series->setName("loc "+QString::number(ids[i]));
         generalChart->addSeries(series);
         series->attachAxis(axisX);
         series->attachAxis(axisY);
@@ -226,14 +226,13 @@ void UserPage::setGeneralChart(const QVector<int>& ids,const QList<POI*>& tuples
     generalChartView->setChart(generalChart);
 }
 
-void UserPage::setPOIChart(const QVector<int>& ids,const QList<POI*>& tuples){
+void POIPage::setUserChart(const QVector<int>& ids,const QList<POI*>& tuples){
 
-    qDebug() << "set poi chartview";
     for (QChartView *view : chartviews){
         delete view;
     }
     chartviews.clear();
-    poiChartView = new QChartView();
+    userChartView = new QChartView();
     chartviews << poiChartView;
     containerLayout->addWidget(poiChartView,0,0,2,2);
     charts.clear();
@@ -328,7 +327,7 @@ void UserPage::setPOIChart(const QVector<int>& ids,const QList<POI*>& tuples){
     poiChartView->setChart(poiChart);
 }
 
-void UserPage::setCmpChart(const QVector<int>& ids,const QList<POI*>& tuples){
+void POIPage::setCmpChart(const QVector<int>& ids,const QList<POI*>& tuples){
     qDebug() << "set cmp chartview";
     for (QChartView *view : chartviews){
         delete view;
@@ -581,7 +580,7 @@ void UserPage::setCmpChart(const QVector<int>& ids,const QList<POI*>& tuples){
     cmpChartView4->setChart(cmpChart4);
 }
 
-void UserPage::setDailyChart(const QVector<int>& ids,const QList<POI*>& tuples){
+void POIPage::setDailyChart(const QVector<int>& ids,const QList<POI*>& tuples){
     for (QChartView *view : chartviews){
         delete view;
     }
@@ -640,7 +639,7 @@ void UserPage::setDailyChart(const QVector<int>& ids,const QList<POI*>& tuples){
     dailyChartView->setChart(dailyChart);
 }
 
-void UserPage::resetFilters(){
+void POIPage::resetFilters(){
     dateFrom->setDate(QDate(2009,2,1));
     dateTo->setDate(QDate(2010,10,31));
     timeFrom->setTime(QTime(0,0,0));
@@ -651,22 +650,22 @@ void UserPage::resetFilters(){
     latitudeTo->setValue(90.0);
 }
 
-void UserPage::loadData(){
+void POIPage::loadData(){
 
     QListIterator<POI*> it(*data);
     while (it.hasNext()){
         POI* poi = it.next();
-        int userID = poi->userID;
-        if (userID>=userData.size()){
-            userData << QList<POI*>();
+        int locID = poi->locID;
+        if (locID>=poiData.size()){
+            poiData << QList<POI*>();
         }
-        userData[userID] << poi;
+        poiData[locID] << poi;
     }
 
-    userCnt = userData.size();
+    poiCnt = poiData.size();
 }
 
-void UserPage::updateUI(){
+void POIPage::updateUI(){
     QString text = lineEdit->text();
     QStringList idsString = text.split(",");
     QSet<int> idset;
@@ -733,7 +732,7 @@ void UserPage::updateUI(){
     }
 }
 
-void UserPage::optionChanged(bool checked){
+void POIPage::optionChanged(bool checked){
     if (!checked){
         return;
     }

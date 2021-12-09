@@ -104,8 +104,10 @@ bool MainWidget::loadData(){
 void MainWidget::setTabs(){
 
     userPage = new UserPage(&data);
+    poiPage = new POIPage(&data);
 
     ui->tabWidget->addTab(userPage,"USER");
+    ui->tabWidget->addTab(poiPage,"POI");
 }
 
 void MainWidget::setStyleSheets(){

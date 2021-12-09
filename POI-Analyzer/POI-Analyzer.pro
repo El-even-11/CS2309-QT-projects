@@ -13,12 +13,14 @@ SOURCES += \
     main.cpp \
     mainwidget.cpp \
     poi.cpp \
+    poipage.cpp \
     userpage.cpp \
     welcomedialog.cpp
 
 HEADERS += \
     mainwidget.h \
     poi.h \
+    poipage.h \
     userpage.h \
     welcomedialog.h
 
