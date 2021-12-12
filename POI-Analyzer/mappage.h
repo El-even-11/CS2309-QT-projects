@@ -24,22 +24,30 @@ class MapPage : public QWidget
 public:
     explicit MapPage(QList<POI*>* data,QWidget *parent = nullptr);
 
+public slots:
+    void updatePOI();
+    void updateUser();
+    void updateUI();
+    void showEdit();
+    void resetFilters();
+    void init();
+
+private:
+    void loadData();
+
 private:
     QGridLayout *gridLayout;
 
-    QLineEdit* lineEdit;
+
     QGroupBox* optionBox;
     QRadioButton* radio1;
     QRadioButton* radio2;
-    QRadioButton* radio3;
-    QRadioButton* radio4;
+    QLineEdit* lineEdit;
+
     QGroupBox* filters;
     QGroupBox* dateFilter;
     QDateEdit* dateFrom;
     QDateEdit* dateTo;
-    QGroupBox* timeFilter;
-    QTimeEdit* timeFrom;
-    QTimeEdit* timeTo;
     QGroupBox* longitudeFilter;
     QDoubleSpinBox* longitudeFrom;
     QDoubleSpinBox* longitudeTo;
@@ -55,6 +63,9 @@ private:
     QWebEngineView *map;
 
     QList<POI*>* data;
+
+    int poiCnt;
+    QVector<QList<POI*>> poiData;
 };
 
 #endif // MAPPAGE_H

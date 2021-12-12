@@ -7,24 +7,20 @@ MapPage::MapPage(QList<POI*>* data,QWidget *parent) : QWidget(parent)
 {
     this->data=data;
 
+    loadData();
+
     gridLayout = new QGridLayout();
-    QLabel *label = new QLabel("user id:");
-    gridLayout->addWidget(label,0,0,1,1);
-    lineEdit = new QLineEdit();
-    gridLayout->addWidget(lineEdit,0,1,1,1);
 
     optionBox = new QGroupBox("Options");
-    radio1 = new QRadioButton("General trends");
-    radio2 = new QRadioButton("Top 10 popular POIs");
-    radio3 = new QRadioButton("Comparison");
-    radio4 = new QRadioButton("Daily trends");
+    radio1 = new QRadioButton("POI heatmap");
+    radio2 = new QRadioButton("USER trajectory");
+    lineEdit = new QLineEdit();
     QGridLayout *grid1 = new QGridLayout();
     grid1->addWidget(radio1,0,0,1,1);
     grid1->addWidget(radio2,1,0,1,1);
-    grid1->addWidget(radio3,1,1,1,1);
-    grid1->addWidget(radio4,0,1,1,1);
+    grid1->addWidget(lineEdit,1,1,1,1);
     optionBox->setLayout(grid1);
-    gridLayout->addWidget(optionBox,1,0,2,2);
+    gridLayout->addWidget(optionBox,0,0,2,2);
 
     dateFilter = new QGroupBox("Date");
     QGridLayout* grid2 = new QGridLayout();
@@ -40,22 +36,8 @@ MapPage::MapPage(QList<POI*>* data,QWidget *parent) : QWidget(parent)
     grid2->addWidget(dateTo,1,1,1,1);
     dateFilter->setLayout(grid2);
 
-    timeFilter = new QGroupBox("Time");
-    QGridLayout* grid3 = new QGridLayout();
-    timeFrom = new QTimeEdit();
-    timeTo = new QTimeEdit();
-    timeFrom->setTimeRange(QTime(0,0,0),QTime(23,59,59));
-    timeTo->setTimeRange(QTime(0,0,0),QTime(23,59,59));
-    timeFrom->setTime(QTime(0,0,0));
-    timeTo->setTime(QTime(23,59,59));
-    grid3->addWidget(new QLabel("from"),0,0,1,1);
-    grid3->addWidget(new QLabel("to"),1,0,1,1);
-    grid3->addWidget(timeFrom,0,1,1,1);
-    grid3->addWidget(timeTo,1,1,1,1);
-    timeFilter->setLayout(grid3);
-
     longitudeFilter = new QGroupBox("Longitude");
-    QGridLayout* grid4 = new QGridLayout();
+    QGridLayout* grid3 = new QGridLayout();
     longitudeFrom = new QDoubleSpinBox();
     longitudeTo = new QDoubleSpinBox();
     longitudeFrom->setRange(-180.0,180.0);
@@ -68,14 +50,14 @@ MapPage::MapPage(QList<POI*>* data,QWidget *parent) : QWidget(parent)
     longitudeTo->setDecimals(1);
     longitudeFrom->setSuffix("°");
     longitudeTo->setSuffix("°");
-    grid4->addWidget(new QLabel("from"),0,0,1,1);
-    grid4->addWidget(new QLabel("to"),1,0,1,1);
-    grid4->addWidget(longitudeFrom,0,1,1,1);
-    grid4->addWidget(longitudeTo,1,1,1,1);
-    longitudeFilter->setLayout(grid4);
+    grid3->addWidget(new QLabel("from"),0,0,1,1);
+    grid3->addWidget(new QLabel("to"),1,0,1,1);
+    grid3->addWidget(longitudeFrom,0,1,1,1);
+    grid3->addWidget(longitudeTo,1,1,1,1);
+    longitudeFilter->setLayout(grid3);
 
     latitudeFilter = new QGroupBox("Latitude");
-    QGridLayout* grid5 = new QGridLayout();
+    QGridLayout* grid4 = new QGridLayout();
     latitudeFrom = new QDoubleSpinBox();
     latitudeTo = new QDoubleSpinBox();
     latitudeFrom->setRange(-90.0,90.0);
@@ -88,11 +70,11 @@ MapPage::MapPage(QList<POI*>* data,QWidget *parent) : QWidget(parent)
     latitudeTo->setDecimals(1);
     latitudeFrom->setSuffix("°");
     latitudeTo->setSuffix("°");
-    grid5->addWidget(new QLabel("from"),0,0,1,1);
-    grid5->addWidget(new QLabel("to"),1,0,1,1);
-    grid5->addWidget(latitudeFrom,0,1,1,1);
-    grid5->addWidget(latitudeTo,1,1,1,1);
-    latitudeFilter->setLayout(grid5);
+    grid4->addWidget(new QLabel("from"),0,0,1,1);
+    grid4->addWidget(new QLabel("to"),1,0,1,1);
+    grid4->addWidget(latitudeFrom,0,1,1,1);
+    grid4->addWidget(latitudeTo,1,1,1,1);
+    latitudeFilter->setLayout(grid4);
 
     filterReset = new QPushButton("Reset");
     filterApply = new QPushButton("Apply");
@@ -101,16 +83,15 @@ MapPage::MapPage(QList<POI*>* data,QWidget *parent) : QWidget(parent)
     filters = new QGroupBox("Filters");
     QGridLayout* grid6 = new QGridLayout();
     grid6->addWidget(dateFilter,0,0,2,2);
-    grid6->addWidget(timeFilter,2,0,2,2);
-    grid6->addWidget(latitudeFilter,4,0,2,2);
-    grid6->addWidget(longitudeFilter,6,0,2,2);
-    grid6->addWidget(filterReset,8,0,1,1);
-    grid6->addWidget(filterApply,8,1,1,1);
-    grid6->addWidget(label1,9,0,1,1);
-    grid6->addWidget(filterLabel,9,1,1,1);
+    grid6->addWidget(latitudeFilter,2,0,2,2);
+    grid6->addWidget(longitudeFilter,4,0,2,2);
+    grid6->addWidget(filterReset,6,0,1,1);
+    grid6->addWidget(filterApply,6,1,1,1);
+    grid6->addWidget(label1,7,0,1,1);
+    grid6->addWidget(filterLabel,7,1,1,1);
     filters->setLayout(grid6);
 
-    gridLayout->addWidget(filters,3,0,10,2);
+    gridLayout->addWidget(filters,2,0,8,2);
 
     table = new QTableWidget();
     table->setEditTriggers(QAbstractItemView::NoEditTriggers);
@@ -129,7 +110,7 @@ MapPage::MapPage(QList<POI*>* data,QWidget *parent) : QWidget(parent)
     QVBoxLayout *vbox2 = new QVBoxLayout();
     vbox2->addWidget(table);
     tableContainer->setLayout(vbox2);
-    gridLayout->addWidget(tableContainer,13,0,10,2);
+    gridLayout->addWidget(tableContainer,10,0,13,2);
 
     map = new QWebEngineView();
     map->page()->settings()->setAttribute(QWebEngineSettings::ShowScrollBars,false);
@@ -143,4 +124,100 @@ MapPage::MapPage(QList<POI*>* data,QWidget *parent) : QWidget(parent)
         gridLayout->setColumnMinimumWidth(i,100);
     }
     this->setLayout(gridLayout);
+
+    connect(radio1,&QRadioButton::toggled,this,&MapPage::updatePOI);
+    connect(radio2,&QRadioButton::toggled,this,&MapPage::showEdit);
+    connect(filterApply,&QPushButton::clicked,this,&MapPage::updateUI);
+    connect(filterReset,&QPushButton::clicked,this,&MapPage::resetFilters);
+    connect(lineEdit,&QLineEdit::editingFinished,this,&MapPage::updateUser);
+
+
+    connect(map,&QWebEngineView::loadFinished,this,&MapPage::init);
+}
+
+void MapPage::updatePOI(){
+    lineEdit->hide();
+
+    QVector<int> cnt;
+
+    QDate mindate = dateFrom->date();
+    QDate maxdate = dateTo->date();
+    double minLat = latitudeFrom->value();
+    double maxLat = latitudeTo->value();
+    double minLng = longitudeFrom->value();
+    double maxLng = longitudeTo->value();
+
+    qDebug() << "here1";
+    int maxcnt = 1;
+    int maxindex = -1;
+    for (int i=0;i<poiCnt;i++){
+        int a = POI::filter(poiData[i],mindate,maxdate,QTime(0,0,0),QTime(23,59,59),minLng,maxLng,minLat,maxLat).size();
+        cnt << a;
+        if (a > maxcnt){
+            maxcnt = a;
+            maxindex = i;
+        }
+    }
+
+    qDebug() << maxcnt;
+    qDebug() << maxindex;
+
+    QString para;
+    para.reserve(30*poiCnt);
+    para += "[";
+    for (int i=0;i<poiCnt;i++){
+        if (cnt[i]*1.0/maxcnt < 0.01){
+            continue;
+        }
+        int size = cnt[i]*15/maxcnt+1;
+        para += ("[" + QString::number(poiData[i][0]->latitude,'f',2) + "," + QString::number(poiData[i][0]->longitude,'f',2) + "," + QString::number(size+2)+","+QString::number(i)+","+QString::number(cnt[i])+"],");
+    }
+    para += "]";
+    qDebug() << "here3";
+
+    map->page()->runJavaScript(QString("setPoints(%1)").arg(para));
+    map->page()->runJavaScript(QString("setArea(%1,%2,%3,%4)").arg(minLat).arg(maxLat).arg(minLng).arg(maxLng));
+
+}
+
+void MapPage::updateUser(){
+
+}
+
+void MapPage::updateUI(){
+    if (radio1->isChecked()){
+        updatePOI();
+    }else{
+        updateUser();
+    }
+}
+
+void MapPage::resetFilters(){
+    dateFrom->setDate(QDate(2009,2,1));
+    dateTo->setDate(QDate(2010,10,31));
+    longitudeFrom->setValue(-180.0);
+    longitudeTo->setValue(180.0);
+    latitudeFrom->setValue(-90.0);
+    latitudeTo->setValue(90.0);
+}
+
+void MapPage::showEdit(){
+    lineEdit->show();
+}
+
+void MapPage::loadData(){
+    QListIterator<POI*> it(*data);
+    while (it.hasNext()){
+        POI* poi = it.next();
+        int locID = poi->locID;
+        if (locID>=poiData.size()){
+            poiData << QList<POI*>();
+        }
+        poiData[locID] << poi;
+    }
+    poiCnt = poiData.size();
+}
+
+void MapPage::init(){
+    radio1->setChecked(true);
 }
