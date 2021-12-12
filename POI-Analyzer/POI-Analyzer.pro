@@ -1,5 +1,6 @@
 QT       += core gui
 QT       += charts
+QT       += webenginewidgets
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
@@ -12,6 +13,7 @@ CONFIG += c++11
 SOURCES += \
     main.cpp \
     mainwidget.cpp \
+    mappage.cpp \
     poi.cpp \
     poipage.cpp \
     userpage.cpp \
@@ -19,6 +21,7 @@ SOURCES += \
 
 HEADERS += \
     mainwidget.h \
+    mappage.h \
     poi.h \
     poipage.h \
     userpage.h \
@@ -32,3 +35,6 @@ FORMS += \
 qnx: target.path = /tmp/$${TARGET}/bin
 else: unix:!android: target.path = /opt/$${TARGET}/bin
 !isEmpty(target.path): INSTALLS += target
+
+RESOURCES += \
+    resources.qrc

@@ -93,9 +93,11 @@ void MainWidget::setTabs(){
 
     userPage = new UserPage(&data);
     poiPage = new POIPage(&data);
+    mapPage = new MapPage(&data);
 
     ui->tabWidget->addTab(userPage,"USER");
     ui->tabWidget->addTab(poiPage,"POI");
+    ui->tabWidget->addTab(mapPage,"MAP");
 }
 
 void MainWidget::setStyleSheets(){

@@ -8,6 +8,7 @@
 #include "poi.h"
 #include "userpage.h"
 #include "poipage.h"
+#include "mappage.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWidget; }
@@ -36,5 +37,6 @@ private:
 
     UserPage *userPage;
     POIPage *poiPage;
+    MapPage *mapPage;
 };
 #endif // MAINWIDGET_H
