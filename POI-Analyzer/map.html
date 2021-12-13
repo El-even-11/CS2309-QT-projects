@@ -10,14 +10,21 @@
     integrity="sha512-XQoYMqMTK8LvdxXYG3nZ448hOEQiglfqkJs1NOQV44cWnUrBc8PkAOcXy20w0vlaXaVUearIOBhiXZ5V3ynxwA=="
     crossorigin=""
   ></script>
+  <script
+    src="heatmap.js"
+  ></script>
+  <script
+    src="leaflet-heatmap.js"
+  ></script>
 </head>
 <body>
-  <div id="mapid" style="width:1600px; height: 1000px; position: relative;"></div>
+  <div id="mapid" style="width:1600px; height: 1040px; position: relative;"></div>
   <script type="text/javascript">
-    var mymap = L.map("mapid").setView([0, 121.47], 2);
+    var mymap = L.map("mapid").setView([0, 0], 2);
     L.tileLayer(
       "https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token={accessToken}",
       {
+        attribution: '',
         maxZoom: 18,
         minZoom: 2,
         id: "mapbox/streets-v11",
@@ -31,10 +38,33 @@
     var pointGroup=L.layerGroup([]);
     var areas=[];
     var areaGroup=L.layerGroup([]);
+    var heatmaps=[];
+    var heatmapGroup=L.layerGroup([]);
+
+    var cfg = {
+      // radius should be small ONLY if scaleRadius is true (or small radius is intended)
+      // if scaleRadius is false it will be the constant radius used in pixels
+      "radius": 3,
+      "maxOpacity": .8,
+      // scales the radius based on map zoom
+      "scaleRadius": true,
+      // if set to false the heatmap uses the global maximum for colorization
+      // if activated: uses the data maximum within the current map boundaries
+      //   (there will always be a red spot with useLocalExtremas true)
+      "useLocalExtrema": true,
+      // which field name in your data represents the latitude - default "lat"
+      latField: 'lat',
+      // which field name in your data represents the longitude - default "lng"
+      lngField: 'lng',
+      // which field name in your data represents the data value - default "value"
+      valueField: 'count'
+    };
 
     function setPoints(arr){
         pointGroup.clearLayers();
+        heatmapGroup.clearLayers();
         points=[];
+        heatmaps=[];
         for (var i=0;i<arr.length;i++){
             var point = L.circleMarker([arr[i][0],arr[i][1]],{
                 color : 'white',
@@ -68,6 +98,19 @@
         areas.push(area);
         areaGroup=L.layerGroup(areas);
         mymap.addLayer(areaGroup);
+    }
+
+    function setHeatmap(data){
+        pointGroup.clearLayers();
+        heatmapGroup.clearLayers();
+        points=[];
+        heatmaps=[];
+
+        var heatmapLayer = new HeatmapOverlay(cfg);
+        heatmaps.push(heatmapLayer);
+        heatmapGroup=L.layerGroup(heatmaps);
+        mymap.addLayer(heatmapGroup);
+        heatmapLayer.setData(data);
     }
   </script>
 </body>

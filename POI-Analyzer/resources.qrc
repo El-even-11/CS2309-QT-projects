@@ -1,5 +1,7 @@
 <RCC>
     <qresource prefix="/new/prefix1">
         <file>map.html</file>
+        <file>heatmap.js</file>
+        <file>leaflet-heatmap.js</file>
     </qresource>
 </RCC>

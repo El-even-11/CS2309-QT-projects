@@ -6,13 +6,17 @@
 MapPage::MapPage(QList<POI*>* data,QWidget *parent) : QWidget(parent)
 {
     this->data=data;
+    map = new QWebEngineView();
+    map->page()->settings()->setAttribute(QWebEngineSettings::ShowScrollBars,false);
+    map->load(QUrl("qrc:/new/prefix1/map.html"));
+    connect(map,&QWebEngineView::loadFinished,this,&MapPage::init);
+}
 
+void MapPage::init(){
     loadData();
-
     gridLayout = new QGridLayout();
-
     optionBox = new QGroupBox("Options");
-    radio1 = new QRadioButton("POI heatmap");
+    radio1 = new QRadioButton("POI checking-ins");
     radio2 = new QRadioButton("USER trajectory");
     lineEdit = new QLineEdit();
     QGridLayout *grid1 = new QGridLayout();
@@ -21,6 +25,15 @@ MapPage::MapPage(QList<POI*>* data,QWidget *parent) : QWidget(parent)
     grid1->addWidget(lineEdit,1,1,1,1);
     optionBox->setLayout(grid1);
     gridLayout->addWidget(optionBox,0,0,2,2);
+
+    diagramBox = new QGroupBox("Diagrams");
+    radio3 = new QRadioButton("Scatter");
+    radio4 = new QRadioButton("Heatmap");
+    QGridLayout *grid5 = new QGridLayout();
+    grid5->addWidget(radio3,0,0,1,1);
+    grid5->addWidget(radio4,1,0,1,1);
+    diagramBox->setLayout(grid5);
+    gridLayout->addWidget(diagramBox,2,0,2,2);
 
     dateFilter = new QGroupBox("Date");
     QGridLayout* grid2 = new QGridLayout();
@@ -91,7 +104,7 @@ MapPage::MapPage(QList<POI*>* data,QWidget *parent) : QWidget(parent)
     grid6->addWidget(filterLabel,7,1,1,1);
     filters->setLayout(grid6);
 
-    gridLayout->addWidget(filters,2,0,8,2);
+    gridLayout->addWidget(filters,4,0,8,2);
 
     table = new QTableWidget();
     table->setEditTriggers(QAbstractItemView::NoEditTriggers);
@@ -110,11 +123,8 @@ MapPage::MapPage(QList<POI*>* data,QWidget *parent) : QWidget(parent)
     QVBoxLayout *vbox2 = new QVBoxLayout();
     vbox2->addWidget(table);
     tableContainer->setLayout(vbox2);
-    gridLayout->addWidget(tableContainer,10,0,13,2);
+    gridLayout->addWidget(tableContainer,12,0,11,2);
 
-    map = new QWebEngineView();
-    map->page()->settings()->setAttribute(QWebEngineSettings::ShowScrollBars,false);
-    map->load(QUrl("qrc:/new/prefix1/map.html"));
     gridLayout->addWidget(map,0,2,23,6);
 
     gridLayout->setColumnStretch(0,1);
@@ -125,14 +135,17 @@ MapPage::MapPage(QList<POI*>* data,QWidget *parent) : QWidget(parent)
     }
     this->setLayout(gridLayout);
 
-    connect(radio1,&QRadioButton::toggled,this,&MapPage::updatePOI);
+    radio1->setChecked(true);
+    radio3->setChecked(true);
+
+    connect(radio1,&QRadioButton::toggled,this,&MapPage::updateUI);
     connect(radio2,&QRadioButton::toggled,this,&MapPage::showEdit);
     connect(filterApply,&QPushButton::clicked,this,&MapPage::updateUI);
     connect(filterReset,&QPushButton::clicked,this,&MapPage::resetFilters);
-    connect(lineEdit,&QLineEdit::editingFinished,this,&MapPage::updateUser);
-
-
-    connect(map,&QWebEngineView::loadFinished,this,&MapPage::init);
+    connect(lineEdit,&QLineEdit::editingFinished,this,&MapPage::updateUI);
+    connect(radio3,&QPushButton::clicked,this,&MapPage::updateUI);
+    connect(radio4,&QPushButton::clicked,this,&MapPage::updateUI);
+    updateUI();
 }
 
 void MapPage::updatePOI(){
@@ -147,37 +160,44 @@ void MapPage::updatePOI(){
     double minLng = longitudeFrom->value();
     double maxLng = longitudeTo->value();
 
-    qDebug() << "here1";
     int maxcnt = 1;
-    int maxindex = -1;
     for (int i=0;i<poiCnt;i++){
         int a = POI::filter(poiData[i],mindate,maxdate,QTime(0,0,0),QTime(23,59,59),minLng,maxLng,minLat,maxLat).size();
         cnt << a;
         if (a > maxcnt){
             maxcnt = a;
-            maxindex = i;
         }
     }
 
-    qDebug() << maxcnt;
-    qDebug() << maxindex;
-
-    QString para;
-    para.reserve(30*poiCnt);
-    para += "[";
-    for (int i=0;i<poiCnt;i++){
-        if (cnt[i]*1.0/maxcnt < 0.01){
-            continue;
+    if (radio3->isChecked()){
+        QString para;
+        para.reserve(30*poiCnt);
+        para += "[";
+        for (int i=0;i<poiCnt;i++){
+            if (cnt[i]*1.0/maxcnt < 0.01){
+                continue;
+            }
+            int size = cnt[i]*15/maxcnt+1;
+            para += ("[" + QString::number(poiData[i][0]->latitude,'f',2) + "," + QString::number(poiData[i][0]->longitude,'f',2) + "," + QString::number(size+2)+","+QString::number(i)+","+QString::number(cnt[i])+"],");
         }
-        int size = cnt[i]*15/maxcnt+1;
-        para += ("[" + QString::number(poiData[i][0]->latitude,'f',2) + "," + QString::number(poiData[i][0]->longitude,'f',2) + "," + QString::number(size+2)+","+QString::number(i)+","+QString::number(cnt[i])+"],");
+        para += "]";
+
+        map->page()->runJavaScript(QString("setPoints(%1)").arg(para));
+        map->page()->runJavaScript(QString("setArea(%1,%2,%3,%4)").arg(minLat).arg(maxLat).arg(minLng).arg(maxLng));
+    }else{
+        QString para;
+        para.reserve(30*poiCnt);
+        para += ("{max:"+QString::number(maxcnt)+",data:[");
+        for (int i=0;i<poiCnt;i++){
+            if (cnt[i]*1.0/maxcnt < 0.01){
+                continue;
+            }
+            para += ("{lat:" + QString::number(poiData[i][0]->latitude,'f',2) + ",lng:" + QString::number(poiData[i][0]->longitude,'f',2) + ",count:"+QString::number(cnt[i])+"},");
+        }
+        para += "]}";
+        map->page()->runJavaScript(QString("setHeatmap(%1)").arg(para));
+        map->page()->runJavaScript(QString("setArea(%1,%2,%3,%4)").arg(minLat).arg(maxLat).arg(minLng).arg(maxLng));
     }
-    para += "]";
-    qDebug() << "here3";
-
-    map->page()->runJavaScript(QString("setPoints(%1)").arg(para));
-    map->page()->runJavaScript(QString("setArea(%1,%2,%3,%4)").arg(minLat).arg(maxLat).arg(minLng).arg(maxLng));
-
 }
 
 void MapPage::updateUser(){
@@ -218,6 +238,3 @@ void MapPage::loadData(){
     poiCnt = poiData.size();
 }
 
-void MapPage::init(){
-    radio1->setChecked(true);
-}

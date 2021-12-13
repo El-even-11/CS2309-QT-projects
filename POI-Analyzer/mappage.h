@@ -25,8 +25,6 @@ public:
     explicit MapPage(QList<POI*>* data,QWidget *parent = nullptr);
 
 public slots:
-    void updatePOI();
-    void updateUser();
     void updateUI();
     void showEdit();
     void resetFilters();
@@ -34,6 +32,8 @@ public slots:
 
 private:
     void loadData();
+    void updatePOI();
+    void updateUser();
 
 private:
     QGridLayout *gridLayout;
@@ -43,6 +43,10 @@ private:
     QRadioButton* radio1;
     QRadioButton* radio2;
     QLineEdit* lineEdit;
+
+    QGroupBox* diagramBox;
+    QRadioButton* radio3;
+    QRadioButton* radio4;
 
     QGroupBox* filters;
     QGroupBox* dateFilter;
