@@ -22,7 +22,7 @@ class MapPage : public QWidget
 {
     Q_OBJECT
 public:
-    explicit MapPage(QList<POI*>* data,QWidget *parent = nullptr);
+    explicit MapPage(QVector<QList<POI*>> *userData,QVector<QList<POI*>> *poiData,int totalCnt,QWidget *parent = nullptr);
 
 public slots:
     void updateUI();
@@ -31,7 +31,6 @@ public slots:
     void init();
 
 private:
-    void loadData();
     void updatePOI();
     void updateUser();
 
@@ -61,15 +60,17 @@ private:
     QPushButton* filterApply;
     QPushButton* filterReset;
     QLabel* filterLabel;
-    QGroupBox* tableContainer;
-    QTableWidget* table;
 
     QWebEngineView *map;
 
-    QList<POI*>* data;
+    int totalCnt;
+
+    int userCnt;
+    QVector<QList<POI*>> *userData;
 
     int poiCnt;
-    QVector<QList<POI*>> poiData;
+    QVector<QList<POI*>> *poiData;
+
 };
 
 #endif // MAPPAGE_H

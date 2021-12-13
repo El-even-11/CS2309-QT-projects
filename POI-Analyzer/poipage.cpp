@@ -5,10 +5,11 @@
 #include <algorithm>
 #include <queue>
 
-POIPage::POIPage(QList<POI*>* data,QWidget *parent) : QWidget(parent)
+POIPage::POIPage(QVector<QList<POI*>> *poiData,int totalCnt,QWidget *parent) : QWidget(parent)
 {
-    this->data=data;
-    loadData();
+    this->poiData=poiData;
+    this->totalCnt=totalCnt;
+    poiCnt = poiData->size();
 
     gridLayout = new QGridLayout();
     QLabel *label = new QLabel("location id:");
@@ -99,7 +100,7 @@ POIPage::POIPage(QList<POI*>* data,QWidget *parent) : QWidget(parent)
 
     filterReset = new QPushButton("Reset");
     filterApply = new QPushButton("Apply");
-    QLabel *label1 = new QLabel(QString::number(data->size())+" records loaded");
+    QLabel *label1 = new QLabel(QString::number(totalCnt)+" records loaded");
     filterLabel = new QLabel("0 records filtered");
     filters = new QGroupBox("Filters");
     QGridLayout* grid6 = new QGridLayout();
@@ -651,19 +652,6 @@ void POIPage::resetFilters(){
     latitudeTo->setValue(90.0);
 }
 
-void POIPage::loadData(){
-    QListIterator<POI*> it(*data);
-    while (it.hasNext()){
-        POI* poi = it.next();
-        int locID = poi->locID;
-        if (locID>=poiData.size()){
-            poiData << QList<POI*>();
-        }
-        poiData[locID] << poi;
-    }
-    poiCnt = poiData.size();
-}
-
 void POIPage::updateUI(){
     QString text = lineEdit->text();
     QList<POI*> tuples;
@@ -693,7 +681,7 @@ void POIPage::updateUI(){
 
 
     for (int i=0;i<ids.size();i++){
-        tuples.append(poiData[ids[i]]);
+        tuples.append((*poiData)[ids[i]]);
     }
 
     QList<POI*> filtered = POI::filter(tuples,dateFrom->date(),dateTo->date(),timeFrom->time(),timeTo->time(),longitudeFrom->value(),longitudeTo->value(),latitudeFrom->value(),latitudeTo->value());

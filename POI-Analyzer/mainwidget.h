@@ -34,6 +34,8 @@ private:
     QFile *file;
 
     QList<POI*> data;
+    QVector<QList<POI*>> userData;
+    QVector<QList<POI*>> poiData;
 
     UserPage *userPage;
     POIPage *poiPage;

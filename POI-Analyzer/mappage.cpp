@@ -3,9 +3,13 @@
 #include <QHeaderView>
 #include <QWebEngineSettings>
 
-MapPage::MapPage(QList<POI*>* data,QWidget *parent) : QWidget(parent)
+MapPage::MapPage(QVector<QList<POI*>> *userData,QVector<QList<POI*>> *poiData,int totalCnt,QWidget *parent) : QWidget(parent)
 {
-    this->data=data;
+    this->userData=userData;
+    this->poiData=poiData;
+    this->totalCnt=totalCnt;
+    userCnt=userData->size();
+    poiCnt=poiData->size();
     map = new QWebEngineView();
     map->page()->settings()->setAttribute(QWebEngineSettings::ShowScrollBars,false);
     map->load(QUrl("qrc:/new/prefix1/map.html"));
@@ -13,7 +17,6 @@ MapPage::MapPage(QList<POI*>* data,QWidget *parent) : QWidget(parent)
 }
 
 void MapPage::init(){
-    loadData();
     gridLayout = new QGridLayout();
     optionBox = new QGroupBox("Options");
     radio1 = new QRadioButton("POI checking-ins");
@@ -91,7 +94,7 @@ void MapPage::init(){
 
     filterReset = new QPushButton("Reset");
     filterApply = new QPushButton("Apply");
-    QLabel *label1 = new QLabel(QString::number(data->size())+" records loaded");
+    QLabel *label1 = new QLabel(QString::number(totalCnt)+" records loaded");
     filterLabel = new QLabel("0 records filtered");
     filters = new QGroupBox("Filters");
     QGridLayout* grid6 = new QGridLayout();
@@ -106,24 +109,7 @@ void MapPage::init(){
 
     gridLayout->addWidget(filters,4,0,8,2);
 
-    table = new QTableWidget();
-    table->setEditTriggers(QAbstractItemView::NoEditTriggers);
-    table->setHorizontalScrollMode(QAbstractItemView::ScrollPerPixel);
-    table->setVerticalScrollMode(QAbstractItemView::ScrollPerPixel);
-    table->horizontalHeader()->setSectionResizeMode(QHeaderView::Fixed);
-    table->verticalHeader()->setSectionResizeMode(QHeaderView::Fixed);
-    table->horizontalHeader()->setDisabled(true);
-    table->verticalHeader()->setDisabled(true);
-    table->setColumnCount(6);
-
-    QStringList header;
-    header << "UserID" << "LocID" << "Date" << "Time" << "Latitude" << "Longitude";
-    table->setHorizontalHeaderLabels(header);
-    tableContainer = new QGroupBox("Records");
-    QVBoxLayout *vbox2 = new QVBoxLayout();
-    vbox2->addWidget(table);
-    tableContainer->setLayout(vbox2);
-    gridLayout->addWidget(tableContainer,12,0,11,2);
+    gridLayout->setRowStretch(12,1);
 
     gridLayout->addWidget(map,0,2,23,6);
 
@@ -162,7 +148,7 @@ void MapPage::updatePOI(){
 
     int maxcnt = 1;
     for (int i=0;i<poiCnt;i++){
-        int a = POI::filter(poiData[i],mindate,maxdate,QTime(0,0,0),QTime(23,59,59),minLng,maxLng,minLat,maxLat).size();
+        int a = POI::filter((*poiData)[i],mindate,maxdate,QTime(0,0,0),QTime(23,59,59),minLng,maxLng,minLat,maxLat).size();
         cnt << a;
         if (a > maxcnt){
             maxcnt = a;
@@ -178,7 +164,7 @@ void MapPage::updatePOI(){
                 continue;
             }
             int size = cnt[i]*15/maxcnt+1;
-            para += ("[" + QString::number(poiData[i][0]->latitude,'f',2) + "," + QString::number(poiData[i][0]->longitude,'f',2) + "," + QString::number(size+2)+","+QString::number(i)+","+QString::number(cnt[i])+"],");
+            para += ("[" + QString::number((*poiData)[i][0]->latitude,'f',2) + "," + QString::number((*poiData)[i][0]->longitude,'f',2) + "," + QString::number(size+2)+","+QString::number(i)+","+QString::number(cnt[i])+"],");
         }
         para += "]";
 
@@ -192,7 +178,7 @@ void MapPage::updatePOI(){
             if (cnt[i]*1.0/maxcnt < 0.01){
                 continue;
             }
-            para += ("{lat:" + QString::number(poiData[i][0]->latitude,'f',2) + ",lng:" + QString::number(poiData[i][0]->longitude,'f',2) + ",count:"+QString::number(cnt[i])+"},");
+            para += ("{lat:" + QString::number((*poiData)[i][0]->latitude,'f',2) + ",lng:" + QString::number((*poiData)[i][0]->longitude,'f',2) + ",count:"+QString::number(cnt[i])+"},");
         }
         para += "]}";
         map->page()->runJavaScript(QString("setHeatmap(%1)").arg(para));
@@ -223,18 +209,5 @@ void MapPage::resetFilters(){
 
 void MapPage::showEdit(){
     lineEdit->show();
-}
-
-void MapPage::loadData(){
-    QListIterator<POI*> it(*data);
-    while (it.hasNext()){
-        POI* poi = it.next();
-        int locID = poi->locID;
-        if (locID>=poiData.size()){
-            poiData << QList<POI*>();
-        }
-        poiData[locID] << poi;
-    }
-    poiCnt = poiData.size();
 }
 

@@ -16,7 +16,7 @@ class UserPage : public QWidget
 {
     Q_OBJECT
 public:
-    explicit UserPage(QList<POI*>* data,QWidget *parent = nullptr);
+    explicit UserPage(QVector<QList<POI*>> *userData,int totalCnt,QWidget *parent = nullptr);
 
 public slots:
     void resetFilters();
@@ -24,8 +24,6 @@ public slots:
     void optionChanged(bool checked);
 
 private:
-    void loadData();
-
     void setGeneralChart(const QVector<int>& ids,const QList<POI*>& tuples);
     void setPOIChart(const QVector<int>& ids,const QList<POI*>& tuples);
     void setCmpChart(const QVector<int>& ids,const QList<POI*>& tuples);
@@ -79,10 +77,10 @@ private:
     QList<QChartView*> chartviews;
     QList<QChart*> charts;
 
-    QList<POI*>* data;
+    int totalCnt;
 
     int userCnt;
-    QVector<QList<POI*>> userData;
+    QVector<QList<POI*>> *userData;
 };
 
 #endif // USERPAGE_H

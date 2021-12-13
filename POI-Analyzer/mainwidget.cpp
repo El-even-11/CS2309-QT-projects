@@ -86,14 +86,35 @@ bool MainWidget::loadData(){
     }
     dialog->close();
     delete dialog;
+
     return finished;
 }
 
 void MainWidget::setTabs(){
 
-    userPage = new UserPage(&data);
-    poiPage = new POIPage(&data);
-    mapPage = new MapPage(&data);
+    QListIterator<POI*> it1(data);
+    while (it1.hasNext()){
+        POI* poi = it1.next();
+        int userID = poi->userID;
+        if (userID>=userData.size()){
+            userData << QList<POI*>();
+        }
+        userData[userID] << poi;
+    }
+
+    QListIterator<POI*> it2(data);
+    while (it2.hasNext()){
+        POI* poi = it2.next();
+        int locID = poi->locID;
+        if (locID>=poiData.size()){
+            poiData << QList<POI*>();
+        }
+        poiData[locID] << poi;
+    }
+
+    userPage = new UserPage(&userData,data.size());
+    poiPage = new POIPage(&poiData,data.size());
+    mapPage = new MapPage(&userData,&poiData,data.size());
 
     ui->tabWidget->addTab(userPage,"USER");
     ui->tabWidget->addTab(poiPage,"POI");

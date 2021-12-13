@@ -5,10 +5,11 @@
 #include <algorithm>
 #include <queue>
 
-UserPage::UserPage(QList<POI*>* data,QWidget *parent) : QWidget(parent)
+UserPage::UserPage(QVector<QList<POI*>> *userData,int totalCnt,QWidget *parent) : QWidget(parent)
 {
-    this->data=data;
-    loadData();
+    this->userData=userData;
+    this->totalCnt=totalCnt;
+    userCnt = userData->size();
 
     gridLayout = new QGridLayout();
     QLabel *label = new QLabel("user id:");
@@ -99,7 +100,7 @@ UserPage::UserPage(QList<POI*>* data,QWidget *parent) : QWidget(parent)
 
     filterReset = new QPushButton("Reset");
     filterApply = new QPushButton("Apply");
-    QLabel *label1 = new QLabel(QString::number(data->size())+" records loaded");
+    QLabel *label1 = new QLabel(QString::number(totalCnt)+" records loaded");
     filterLabel = new QLabel("0 records filtered");
     filters = new QGroupBox("Filters");
     QGridLayout* grid6 = new QGridLayout();
@@ -649,21 +650,6 @@ void UserPage::resetFilters(){
     latitudeTo->setValue(90.0);
 }
 
-void UserPage::loadData(){
-
-    QListIterator<POI*> it(*data);
-    while (it.hasNext()){
-        POI* poi = it.next();
-        int userID = poi->userID;
-        if (userID>=userData.size()){
-            userData << QList<POI*>();
-        }
-        userData[userID] << poi;
-    }
-
-    userCnt = userData.size();
-}
-
 void UserPage::updateUI(){
     QString text = lineEdit->text();
     QList<POI*> tuples;
@@ -692,7 +678,7 @@ void UserPage::updateUI(){
     std::sort(ids.begin(),ids.end());
 
     for (int i=0;i<ids.size();i++){
-        tuples.append(userData[ids[i]]);
+        tuples.append((*userData)[ids[i]]);
     }
 
     QList<POI*> filtered = POI::filter(tuples,dateFrom->date(),dateTo->date(),timeFrom->time(),timeTo->time(),longitudeFrom->value(),longitudeTo->value(),latitudeFrom->value(),latitudeTo->value());

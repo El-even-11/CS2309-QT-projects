@@ -15,7 +15,7 @@ class POIPage : public QWidget
 {
     Q_OBJECT
 public:
-    explicit POIPage(QList<POI*>* data,QWidget *parent = nullptr);
+    explicit POIPage(QVector<QList<POI*>> *poiData,int totalCnt,QWidget *parent = nullptr);
 
 public slots:
     void resetFilters();
@@ -23,8 +23,6 @@ public slots:
     void optionChanged(bool checked);
 
 private:
-    void loadData();
-
     void setGeneralChart(const QVector<int>& ids,const QList<POI*>& tuples);
     void setUserChart(const QVector<int>& ids,const QList<POI*>& tuples);
     void setCmpChart(const QVector<int>& ids,const QList<POI*>& tuples);
@@ -78,10 +76,10 @@ private:
     QList<QChartView*> chartviews;
     QList<QChart*> charts;
 
-    QList<POI*>* data;
+    int totalCnt;
 
     int poiCnt;
-    QVector<QList<POI*>> poiData;
+    QVector<QList<POI*>> *poiData;
 
 };
 
