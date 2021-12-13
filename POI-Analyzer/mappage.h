@@ -59,7 +59,6 @@ private:
     QDoubleSpinBox* latitudeTo;
     QPushButton* filterApply;
     QPushButton* filterReset;
-    QLabel* filterLabel;
 
     QWebEngineView *map;
 

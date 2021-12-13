@@ -20,7 +20,10 @@
 <body>
   <div id="mapid" style="width:1600px; height: 1040px; position: relative;"></div>
   <script type="text/javascript">
-    var mymap = L.map("mapid").setView([0, 0], 2);
+    var mymap = L.map("mapid",{
+        maxBounds: L.latLngBounds(L.latLng(90,-360),L.latLng(-90,360))
+    });
+    mymap.setView([0, 0], 2);
     L.tileLayer(
       "https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token={accessToken}",
       {

@@ -94,8 +94,7 @@ void MapPage::init(){
 
     filterReset = new QPushButton("Reset");
     filterApply = new QPushButton("Apply");
-    QLabel *label1 = new QLabel(QString::number(totalCnt)+" records loaded");
-    filterLabel = new QLabel("0 records filtered");
+
     filters = new QGroupBox("Filters");
     QGridLayout* grid6 = new QGridLayout();
     grid6->addWidget(dateFilter,0,0,2,2);
@@ -103,13 +102,12 @@ void MapPage::init(){
     grid6->addWidget(longitudeFilter,4,0,2,2);
     grid6->addWidget(filterReset,6,0,1,1);
     grid6->addWidget(filterApply,6,1,1,1);
-    grid6->addWidget(label1,7,0,1,1);
-    grid6->addWidget(filterLabel,7,1,1,1);
+
     filters->setLayout(grid6);
 
-    gridLayout->addWidget(filters,4,0,8,2);
+    gridLayout->addWidget(filters,4,0,7,2);
 
-    gridLayout->setRowStretch(12,1);
+    gridLayout->setRowStretch(11,1);
 
     gridLayout->addWidget(map,0,2,23,6);
 
@@ -187,7 +185,59 @@ void MapPage::updatePOI(){
 }
 
 void MapPage::updateUser(){
+    QString text = lineEdit->text();
+    bool ok;
+    int id = text.toInt(&ok);
+    if (!ok){
+        return;
+    }
+    if (id >= userCnt){
+        return;
+    }
 
+    QDate mindate = dateFrom->date();
+    QDate maxdate = dateTo->date();
+    double minLat = latitudeFrom->value();
+    double maxLat = latitudeTo->value();
+    double minLng = longitudeFrom->value();
+    double maxLng = longitudeTo->value();
+
+    QList<POI*> pois = POI::filter((*userData)[id],mindate,maxdate,QTime(0,0,0),QTime(23,59,59),minLng,maxLng,minLat,maxLat);
+    QHash<int,int> cnt;
+    int maxcnt=1;
+
+    for (int i=0;i<pois.size();i++){
+        cnt[pois[i]->locID]++;
+        if (cnt[pois[i]->locID]>maxcnt){
+            maxcnt=cnt[pois[i]->locID];
+        }
+    }
+
+    QHashIterator<int,int> it(cnt);
+    if (radio3->isChecked()){
+        QString para;
+        para.reserve(30*cnt.size());
+        para+="[";
+        while (it.hasNext()){
+            it.next();
+            int size = it.value()*15/maxcnt+1;
+            para += ("[" + QString::number((*poiData)[it.key()][0]->latitude,'f',2) + "," + QString::number((*poiData)[it.key()][0]->longitude,'f',2) + "," + QString::number(size+2)+","+QString::number(it.key())+","+QString::number(it.value())+"],");
+        }
+        para += "]";
+        map->page()->runJavaScript(QString("setPoints(%1)").arg(para));
+        map->page()->runJavaScript(QString("setArea(%1,%2,%3,%4)").arg(minLat).arg(maxLat).arg(minLng).arg(maxLng));
+    }else{
+        QString para;
+        para.reserve(30*cnt.size());
+        para += ("{max:"+QString::number(maxcnt)+",data:[");
+        while (it.hasNext()){
+            it.next();
+            para += ("{lat:" + QString::number((*poiData)[it.key()][0]->latitude,'f',2) + ",lng:" + QString::number((*poiData)[it.key()][0]->longitude,'f',2) + ",count:"+QString::number(it.value())+"},");
+        }
+        para += "]}";
+        map->page()->runJavaScript(QString("setHeatmap(%1)").arg(para));
+        map->page()->runJavaScript(QString("setArea(%1,%2,%3,%4)").arg(minLat).arg(maxLat).arg(minLng).arg(maxLng));
+    }
 }
 
 void MapPage::updateUI(){
