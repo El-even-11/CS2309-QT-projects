@@ -115,10 +115,12 @@ void MainWidget::setTabs(){
     userPage = new UserPage(&userData,data.size());
     poiPage = new POIPage(&poiData,data.size());
     mapPage = new MapPage(&userData,&poiData,data.size());
+    predictPage = new PredictPage(&userData,&poiData);
 
     ui->tabWidget->addTab(userPage,"USER");
     ui->tabWidget->addTab(poiPage,"POI");
     ui->tabWidget->addTab(mapPage,"MAP");
+    ui->tabWidget->addTab(predictPage,"PREDICT");
 }
 
 void MainWidget::setStyleSheets(){
