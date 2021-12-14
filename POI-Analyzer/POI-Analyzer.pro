@@ -16,6 +16,7 @@ SOURCES += \
     mappage.cpp \
     poi.cpp \
     poipage.cpp \
+    predictpage.cpp \
     userpage.cpp \
     welcomedialog.cpp
 
@@ -24,6 +25,7 @@ HEADERS += \
     mappage.h \
     poi.h \
     poipage.h \
+    predictpage.h \
     userpage.h \
     welcomedialog.h
 
