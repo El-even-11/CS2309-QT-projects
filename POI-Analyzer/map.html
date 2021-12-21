@@ -21,7 +21,7 @@
   <div id="mapid" style="width:1600px; height: 1040px; position: relative;"></div>
   <script type="text/javascript">
     var mymap = L.map("mapid",{
-        maxBounds: L.latLngBounds(L.latLng(90,-360),L.latLng(-90,360))
+        maxBounds: L.latLngBounds(L.latLng(120,-360),L.latLng(-90,360))
     });
     mymap.setView([0, 0], 2);
     L.tileLayer(
@@ -43,6 +43,8 @@
     var areaGroup=L.layerGroup([]);
     var heatmaps=[];
     var heatmapGroup=L.layerGroup([]);
+    var trajectorys=[];
+    var trajectoryGroup=L.layerGroup([]);
 
     var cfg = {
       // radius should be small ONLY if scaleRadius is true (or small radius is intended)
@@ -66,8 +68,10 @@
     function setPoints(arr){
         pointGroup.clearLayers();
         heatmapGroup.clearLayers();
+        trajectoryGroup.clearLayers();
         points=[];
         heatmaps=[];
+        trajectorys=[];
         for (var i=0;i<arr.length;i++){
             var point = L.circleMarker([arr[i][0],arr[i][1]],{
                 color : 'white',
@@ -94,7 +98,7 @@
             [minLat,minLng],
             [maxLat,maxLng],
         ],{
-            color : 'blue',
+            color : 'white',
             weight : 2,
             fill : false,
         });
@@ -106,14 +110,50 @@
     function setHeatmap(data){
         pointGroup.clearLayers();
         heatmapGroup.clearLayers();
+        trajectoryGroup.clearLayers();
         points=[];
         heatmaps=[];
+        trajectorys=[];
 
         var heatmapLayer = new HeatmapOverlay(cfg);
         heatmaps.push(heatmapLayer);
         heatmapGroup=L.layerGroup(heatmaps);
         mymap.addLayer(heatmapGroup);
         heatmapLayer.setData(data);
+    }
+
+
+    function setTrajectory(latlng,ids){
+        pointGroup.clearLayers();
+        heatmapGroup.clearLayers();
+        trajectoryGroup.clearLayers();
+        points=[];
+        heatmaps=[];
+        trajectorys=[];
+
+        var trajectory=L.polyline(latlng,{
+            color : '#f5ab0a',
+        });
+
+        trajectorys.push(trajectory)
+        trajectoryGroup=L.layerGroup(trajectorys);
+        mymap.addLayer(trajectoryGroup);
+
+        for (var i=0;i<ids.length;i++){
+            var point = L.circleMarker([latlng[i][0],latlng[i][1]],{
+                color : 'white',
+                opacity: 0.5,
+                weight : 1,
+                fillColor : 'red',
+                fillOpacity : 0.7,
+                radius : 5,
+            });
+            point.bindPopup("location id "+ids[i]);
+            points.push(point);
+        }
+
+        pointGroup=L.layerGroup(points);
+        mymap.addLayer(pointGroup);
     }
   </script>
 </body>

@@ -46,6 +46,7 @@ private:
     QGroupBox* diagramBox;
     QRadioButton* radio3;
     QRadioButton* radio4;
+    QRadioButton* radio5;
 
     QGroupBox* filters;
     QGroupBox* dateFilter;

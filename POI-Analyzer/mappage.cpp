@@ -32,9 +32,11 @@ void MapPage::init(){
     diagramBox = new QGroupBox("Diagrams");
     radio3 = new QRadioButton("Scatter");
     radio4 = new QRadioButton("Heatmap");
+    radio5 = new QRadioButton("Trajectory");
     QGridLayout *grid5 = new QGridLayout();
     grid5->addWidget(radio3,0,0,1,1);
     grid5->addWidget(radio4,1,0,1,1);
+    grid5->addWidget(radio5,0,1,1,1);
     diagramBox->setLayout(grid5);
     gridLayout->addWidget(diagramBox,2,0,2,2);
 
@@ -104,7 +106,7 @@ void MapPage::init(){
     grid6->addWidget(longitudeFilter,4,0,2,2);
     grid6->addWidget(filterReset,6,0,1,1);
     grid6->addWidget(filterApply,6,1,1,1);
-    grid6->addWidget(totalCntLabel,7,0,1,1);
+    grid6->addWidget(totalCntLabel,7,0,1,2);
 
     filters->setLayout(grid6);
 
@@ -132,11 +134,13 @@ void MapPage::init(){
     connect(lineEdit,&QLineEdit::editingFinished,this,&MapPage::updateUI);
     connect(radio3,&QPushButton::clicked,this,&MapPage::updateUI);
     connect(radio4,&QPushButton::clicked,this,&MapPage::updateUI);
+    connect(radio5,&QPushButton::clicked,this,&MapPage::updateUI);
     updateUI();
 }
 
 void MapPage::updatePOI(){
     lineEdit->hide();
+    radio5->hide();
 
     QVector<int> cnt;
 
@@ -169,13 +173,13 @@ void MapPage::updatePOI(){
                 continue;
             }
             int size = cnt[i]*15/maxcnt+1;
-            para += ("[" + QString::number((*poiData)[i][0]->latitude,'f',2) + "," + QString::number((*poiData)[i][0]->longitude,'f',2) + "," + QString::number(size+2)+","+QString::number(i)+","+QString::number(cnt[i])+"],");
+            para += ("[" + QString::number((*poiData)[i][0]->latitude,'f',4) + "," + QString::number((*poiData)[i][0]->longitude,'f',4) + "," + QString::number(size+2)+","+QString::number(i)+","+QString::number(cnt[i])+"],");
         }
         para += "]";
 
         map->page()->runJavaScript(QString("setPoints(%1)").arg(para));
         map->page()->runJavaScript(QString("setArea(%1,%2,%3,%4)").arg(minLat).arg(maxLat).arg(minLng).arg(maxLng));
-    }else{
+    }else if (radio4->isChecked()){
         QString para;
         para.reserve(30*poiCnt);
         para += ("{max:"+QString::number(maxcnt)+",data:[");
@@ -188,6 +192,8 @@ void MapPage::updatePOI(){
         para += "]}";
         map->page()->runJavaScript(QString("setHeatmap(%1)").arg(para));
         map->page()->runJavaScript(QString("setArea(%1,%2,%3,%4)").arg(minLat).arg(maxLat).arg(minLng).arg(maxLng));
+    }else{
+        radio3->setChecked(true);
     }
 }
 
@@ -220,8 +226,6 @@ void MapPage::updateUser(){
         }
     }
 
-    int allcnt = 0;
-
     QHashIterator<int,int> it(cnt);
     if (radio3->isChecked()){
         QString para;
@@ -230,27 +234,46 @@ void MapPage::updateUser(){
         while (it.hasNext()){
             it.next();
             int size = it.value()*15/maxcnt+1;
-            allcnt += it.value();
-            para += ("[" + QString::number((*poiData)[it.key()][0]->latitude,'f',2) + "," + QString::number((*poiData)[it.key()][0]->longitude,'f',2) + "," + QString::number(size+2)+","+QString::number(it.key())+","+QString::number(it.value())+"],");
+            para += ("[" + QString::number((*poiData)[it.key()][0]->latitude,'f',4) + "," + QString::number((*poiData)[it.key()][0]->longitude,'f',4) + "," + QString::number(size+2)+","+QString::number(it.key())+","+QString::number(it.value())+"],");
         }
         para += "]";
         map->page()->runJavaScript(QString("setPoints(%1)").arg(para));
         map->page()->runJavaScript(QString("setArea(%1,%2,%3,%4)").arg(minLat).arg(maxLat).arg(minLng).arg(maxLng));
-    }else{
+    }else if (radio4->isChecked()){
         QString para;
         para.reserve(30*cnt.size());
         para += ("{max:"+QString::number(maxcnt)+",data:[");
         while (it.hasNext()){
             it.next();
-            allcnt += it.value();
             para += ("{lat:" + QString::number((*poiData)[it.key()][0]->latitude,'f',2) + ",lng:" + QString::number((*poiData)[it.key()][0]->longitude,'f',2) + ",count:"+QString::number(it.value())+"},");
         }
         para += "]}";
         map->page()->runJavaScript(QString("setHeatmap(%1)").arg(para));
         map->page()->runJavaScript(QString("setArea(%1,%2,%3,%4)").arg(minLat).arg(maxLat).arg(minLng).arg(maxLng));
+    }else{
+        QString para1;
+        QString para2;
+        para1.reserve(25*pois.size());
+        para2.reserve(6*pois.size());
+        para1+="[";
+        para2+="[";
+
+        int locid = -1;
+        for (POI* poi : pois){
+            if (poi->locID==locid){
+                continue;
+            }
+            locid=poi->locID;
+            para1 += "["+QString::number(poi->latitude,'f',4)+","+QString::number(poi->longitude,'f',4)+"],";
+            para2 += QString::number(locid)+",";
+        }
+        para1+="]";
+        para2+="]";
+        map->page()->runJavaScript(QString("setTrajectory(%1,%2)").arg(para1).arg(para2));
+        map->page()->runJavaScript(QString("setArea(%1,%2,%3,%4)").arg(minLat).arg(maxLat).arg(minLng).arg(maxLng));
     }
 
-    totalCntLabel->setText(QString::number(allcnt)+" checking-in records in total");
+    totalCntLabel->setText(QString::number(pois.size())+" checking-in records in total");
 }
 
 void MapPage::updateUI(){
@@ -272,5 +295,6 @@ void MapPage::resetFilters(){
 
 void MapPage::showEdit(){
     lineEdit->show();
+    radio5->show();
 }
 
