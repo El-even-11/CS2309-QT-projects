@@ -38,3 +38,5 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 
 RESOURCES += \
     resources.qrc
+
+QTQUICK_COMPILER_SKIPPED_RESOURCES += bundle_only.qrc

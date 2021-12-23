@@ -16,6 +16,9 @@
   <script
     src="leaflet-heatmap.js"
   ></script>
+  <script
+    src="snakeanim.js"
+  ></script>
 </head>
 <body>
   <div id="mapid" style="width:1600px; height: 1040px; position: relative;"></div>
@@ -43,7 +46,6 @@
     var areaGroup=L.layerGroup([]);
     var heatmaps=[];
     var heatmapGroup=L.layerGroup([]);
-    var trajectorys=[];
     var trajectoryGroup=L.layerGroup([]);
 
     var cfg = {
@@ -68,10 +70,10 @@
     function setPoints(arr){
         pointGroup.clearLayers();
         heatmapGroup.clearLayers();
+        trajectoryGroup.snakeEnd();
         trajectoryGroup.clearLayers();
         points=[];
         heatmaps=[];
-        trajectorys=[];
         for (var i=0;i<arr.length;i++){
             var point = L.circleMarker([arr[i][0],arr[i][1]],{
                 color : 'white',
@@ -110,10 +112,10 @@
     function setHeatmap(data){
         pointGroup.clearLayers();
         heatmapGroup.clearLayers();
+        trajectoryGroup.snakeEnd();
         trajectoryGroup.clearLayers();
         points=[];
         heatmaps=[];
-        trajectorys=[];
 
         var heatmapLayer = new HeatmapOverlay(cfg);
         heatmaps.push(heatmapLayer);
@@ -126,35 +128,38 @@
     function setTrajectory(latlng,ids){
         pointGroup.clearLayers();
         heatmapGroup.clearLayers();
+        trajectoryGroup.snakeEnd();
         trajectoryGroup.clearLayers();
         points=[];
         heatmaps=[];
-        trajectorys=[];
 
-        var trajectory=L.polyline(latlng,{
-            color : '#f5ab0a',
-            snakingSpeed : 200,
+        var startpoint = L.circleMarker(latlng[0],{
+            color : 'white',
+            opacity: 0.5,
+            weight : 1,
+            fillColor : 'red',
+            fillOpacity : 0.7,
+            radius : 5,
         });
+        startpoint.bindPopup("location id "+ids[0]);
 
-        trajectorys.push(trajectory)
-        trajectoryGroup=L.layerGroup(trajectorys);
-        mymap.addLayer(trajectoryGroup);
-
-        for (var i=0;i<ids.length;i++){
-            var point = L.circleMarker([latlng[i][0],latlng[i][1]],{
+        trajectoryGroup=L.featureGroup([startpoint],{snakingPause : 0});
+        for (var i=1;i<latlng.length;i++){
+            var edge=L.polyline([latlng[i-1],latlng[i]],{
+                color : '#f5ab0a',
+                snakingSpeed : 1000,
+            }).addTo(trajectoryGroup);
+            var point = L.circleMarker(latlng[i],{
                 color : 'white',
                 opacity: 0.5,
                 weight : 1,
                 fillColor : 'red',
                 fillOpacity : 0.7,
                 radius : 5,
-            });
-            point.bindPopup("location id "+ids[i]);
-            points.push(point);
+            }).bindPopup("location id "+ids[i]).addTo(trajectoryGroup);
         }
 
-        pointGroup=L.layerGroup(points);
-        mymap.addLayer(pointGroup);
+        trajectoryGroup.addTo(mymap).snakeIn();
     }
   </script>
 </body>

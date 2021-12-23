@@ -34,7 +34,7 @@ L.Polyline.include({
 		this._snakingVertices = this._snakingRings = this._snakingDistance = 0;
 
 		if (!this._snakeLatLngs) {
-			this._snakeLatLngs = L.Polyline._flat(this._latlngs) ?
+            this._snakeLatLngs = L.LineUtil.isFlat(this._latlngs) ?
 				[ this._latlngs ] :
 				this._latlngs ;
 		}
@@ -65,6 +65,7 @@ L.Polyline.include({
 
 	_snakeForward: function(forward) {
 
+        forward = (forward == 0 ? 0.00000000001 : forward);
 		// Calculate distance from current vertex to next vertex
 		var currPoint = this._map.latLngToContainerPoint(
 			this._snakeLatLngs[ this._snakingRings ][ this._snakingVertices ]);
@@ -162,9 +163,15 @@ L.LayerGroup.include({
 		return this._snakeNext();
 	},
 
+    snakeEnd: function(){
+        this._snaking=false;
+    },
+
 
 	_snakeNext: function() {
-
+        if (!this._snaking){
+            return;
+        }
 
 		if (this._snakingLayersDone >= this._snakingLayers.length) {
 			this.fire('snakeend');

@@ -3,5 +3,6 @@
         <file>map.html</file>
         <file>heatmap.js</file>
         <file>leaflet-heatmap.js</file>
+        <file>snakeanim.js</file>
     </qresource>
 </RCC>
