@@ -23,17 +23,16 @@ public:
     ~MainWidget();
 
 private:
-    bool loadData();
+    bool loadData(QFile* file);
     void setTabs();
     void setStyleSheets();
 
 private:
     Ui::MainWidget *ui;
 
-    QString filename;
-    QFile *file;
+    int filesize;
 
-    QList<POI*> data;
+    int datasize;
     QVector<QList<POI*>> userData;
     QVector<QList<POI*>> poiData;
 

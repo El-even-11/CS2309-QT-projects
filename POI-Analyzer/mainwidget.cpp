@@ -14,6 +14,8 @@ MainWidget::MainWidget(QWidget *parent)
     ui->setupUi(this);
     WelcomeDialog *wdialog = new WelcomeDialog();
 
+    QString filename;
+    QFile *file;
     bool finished=false;
 
     while (!finished){
@@ -23,11 +25,14 @@ MainWidget::MainWidget(QWidget *parent)
             file = new QFile(filename);
             file->open(QIODevice::ReadOnly|QIODevice::Text);
             qDebug() << filename;
+            filesize = file->size();
+            finished = loadData(file);
         }else if (res == QDialog::Rejected){
             exit(0);
         }
-        finished = loadData();
     }
+    delete wdialog;
+    delete file;
     setStyleSheets();
     setTabs();
 }
@@ -35,19 +40,13 @@ MainWidget::MainWidget(QWidget *parent)
 MainWidget::~MainWidget()
 {
     delete ui;
-
-    QListIterator<POI*> it(data);
-    while (it.hasNext()){
-        POI *poi = it.next();
-        delete poi;
-    }
 }
 
-bool MainWidget::loadData(){
+bool MainWidget::loadData(QFile* file){
     QProgressDialog *dialog = new QProgressDialog();
     dialog->setLabelText("LOADING...");
 
-    qint64 size=file->size();
+    qint64 size=filesize;
     qDebug() << size;
 
     dialog->setFixedSize(450,250);
@@ -61,6 +60,7 @@ bool MainWidget::loadData(){
     bool finished = true;
     int factor = 0;
     int interval = size / 100;
+    QList<POI*> data;
     while (!in.atEnd()){
         QString line = in.readLine();
         readBytes+=line.length()+2;
@@ -82,16 +82,12 @@ bool MainWidget::loadData(){
     }
     if (finished){
         dialog->setValue(size);
-        qDebug() << readBytes;
     }
+
     dialog->close();
     delete dialog;
 
-    return finished;
-}
-
-void MainWidget::setTabs(){
-
+    datasize = data.size();
     QListIterator<POI*> it1(data);
     while (it1.hasNext()){
         POI* poi = it1.next();
@@ -112,9 +108,14 @@ void MainWidget::setTabs(){
         poiData[locID] << poi;
     }
 
-    userPage = new UserPage(&userData,data.size());
-    poiPage = new POIPage(&poiData,data.size());
-    mapPage = new MapPage(&userData,&poiData,data.size());
+    return finished;
+}
+
+void MainWidget::setTabs(){
+
+    userPage = new UserPage(&userData,datasize);
+    poiPage = new POIPage(&poiData,datasize);
+    mapPage = new MapPage(&userData,&poiData,datasize);
 
     ui->tabWidget->addTab(userPage,"USER");
     ui->tabWidget->addTab(poiPage,"POI");
