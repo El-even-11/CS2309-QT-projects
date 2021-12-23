@@ -193,7 +193,7 @@ void MapPage::updatePOI(){
         map->page()->runJavaScript(QString("setHeatmap(%1)").arg(para));
         map->page()->runJavaScript(QString("setArea(%1,%2,%3,%4)").arg(minLat).arg(maxLat).arg(minLng).arg(maxLng));
     }else{
-        radio3->setChecked(true);
+        radio3->click();
     }
 }
 
