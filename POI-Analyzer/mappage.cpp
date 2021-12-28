@@ -30,7 +30,7 @@ void MapPage::init(){
     gridLayout->addWidget(optionBox,0,0,2,2);
 
     diagramBox = new QGroupBox("Diagrams");
-    radio3 = new QRadioButton("Scatter");
+    radio3 = new QRadioButton("Hotspot map");
     radio4 = new QRadioButton("Heatmap");
     radio5 = new QRadioButton("Trajectory");
     QGridLayout *grid5 = new QGridLayout();
@@ -184,10 +184,10 @@ void MapPage::updatePOI(){
         para.reserve(30*poiCnt);
         para += ("{max:"+QString::number(maxcnt)+",data:[");
         for (int i=0;i<poiCnt;i++){
-            if (cnt[i]*1.0/maxcnt < 0.01){
+            if (cnt[i]*1.0/maxcnt < 0.001){
                 continue;
             }
-            para += ("{lat:" + QString::number((*poiData)[i][0]->latitude,'f',2) + ",lng:" + QString::number((*poiData)[i][0]->longitude,'f',2) + ",count:"+QString::number(cnt[i])+"},");
+            para += ("{lat:" + QString::number((*poiData)[i][0]->latitude,'f',4) + ",lng:" + QString::number((*poiData)[i][0]->longitude,'f',4) + ",count:"+QString::number(cnt[i])+"},");
         }
         para += "]}";
         map->page()->runJavaScript(QString("setHeatmap(%1)").arg(para));

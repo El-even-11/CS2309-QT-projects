@@ -24,7 +24,7 @@
   <div id="mapid" style="width:1600px; height: 1040px; position: relative;"></div>
   <script type="text/javascript">
     var mymap = L.map("mapid",{
-        maxBounds: L.latLngBounds(L.latLng(120,-360),L.latLng(-90,360))
+        maxBounds: L.latLngBounds(L.latLng(120,-360),L.latLng(-180,720))
     });
     mymap.setView([0, 0], 2);
     L.tileLayer(
@@ -51,10 +51,10 @@
     var cfg = {
       // radius should be small ONLY if scaleRadius is true (or small radius is intended)
       // if scaleRadius is false it will be the constant radius used in pixels
-      "radius": 3,
+      "radius": 20,
       "maxOpacity": .8,
       // scales the radius based on map zoom
-      "scaleRadius": true,
+      "scaleRadius": false,
       // if set to false the heatmap uses the global maximum for colorization
       // if activated: uses the data maximum within the current map boundaries
       //   (there will always be a red spot with useLocalExtremas true)
