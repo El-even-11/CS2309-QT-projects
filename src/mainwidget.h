@@ -22,9 +22,6 @@ public:
     MainWidget(QWidget *parent = nullptr);
     ~MainWidget();
 
-public slots:
-    void getData(QList<POI*>* data);
-
 private:
     bool loadData(QFile* file);
     void setTabs();

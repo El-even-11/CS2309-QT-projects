@@ -1,21 +1,10 @@
-本项目为 SJTU CS2309Fall 大作业，实现 POI data 的可视化。
-
-Grading : 40/40
-
-遗憾：临近dll得知计算应另起线程，否则窗口在拖拽、选中状态时会导致程序阻塞。
-
-### TODO
-
-- [ ] separate main thread (drawing) and worker thread (computing).
-- [ ] implement multi-thread to speed up data filtering.
-
 # POI-Analyzer
 
 ## 1.Execute
 
 ### run directly(recommended)
 
-Click the `POI-Analyzer.exe` in `./build` folder.  Please do **NOT** change or remove other files in the folder.
+Click the `POI-Analyzer.exe` in `../build` folder.  Please do **NOT** change or remove other files in the folder.
 
 ### build by yourself
 
