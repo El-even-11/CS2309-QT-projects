@@ -664,7 +664,7 @@ void UserPage::updateUI(){
         if (!ok){
             return;
         }
-        if (id >= userCnt){
+        if (id >= userCnt || id < 0){
             return;
         }
         idset.insert(id);

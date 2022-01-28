@@ -204,7 +204,7 @@ void MapPage::updateUser(){
     if (!ok){
         return;
     }
-    if (id >= userCnt){
+    if (id >= userCnt || id < 0){
         return;
     }
 

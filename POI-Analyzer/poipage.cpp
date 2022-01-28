@@ -666,7 +666,7 @@ void POIPage::updateUI(){
         if (!ok){
             return;
         }
-        if (id >= poiCnt){
+        if (id >= poiCnt || id < 0){
             return;
         }
         idset.insert(id);
