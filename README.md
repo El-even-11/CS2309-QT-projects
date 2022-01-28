@@ -27,7 +27,7 @@ Qt Plugins:
 - Qt WebEngine
 - Qt WebChannel
 
-Compiler: MSVC2019 64bit (Please notice that MinGW do **NOT** support Qt webEngine! )
+Compiler: MSVC2019 64bit (Please notice that MinGW does **NOT** support Qt webEngine! )
 
 ## 2.Using instruction
 
